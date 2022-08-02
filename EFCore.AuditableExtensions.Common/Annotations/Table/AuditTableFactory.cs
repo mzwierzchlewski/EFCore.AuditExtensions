@@ -8,11 +8,11 @@ internal static class AuditTableFactory
 {
     private static AuditTableColumn[] GetDefaultColumns() => new[]
     {
-        new AuditTableColumn(AuditColumnType.Text, "OldData", true),
-        new AuditTableColumn(AuditColumnType.Text, "NewData", true),
-        new AuditTableColumn(AuditColumnType.Text, "OperationType", false),
-        new AuditTableColumn(AuditColumnType.DateTime, "Timestamp", false),
-        new AuditTableColumn(AuditColumnType.Text, "User", false),
+        new AuditTableColumn(AuditColumnType.Text, Constants.AuditTableColumnNames.OldData, true),
+        new AuditTableColumn(AuditColumnType.Text, Constants.AuditTableColumnNames.NewData, true),
+        new AuditTableColumn(AuditColumnType.Text, Constants.AuditTableColumnNames.OperationType, false),
+        new AuditTableColumn(AuditColumnType.Text, Constants.AuditTableColumnNames.User, false),
+        new AuditTableColumn(AuditColumnType.DateTime, Constants.AuditTableColumnNames.Timestamp, false),
     };
 
     private static AuditTableColumn GetKeyColumn<T>(IMutableEntityType mutableEntityType, AuditOptions<T> options) where T : class
