@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EFCore.AuditableExtensions.Common", "EFCore.AuditableExtensions.Common\EFCore.AuditableExtensions.Common.csproj", "{536AA71C-4475-495E-B7F5-892C39957FFA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EFCore.AuditableExtensions.SqlServer", "EFCore.AuditableExtensions.SqlServer\EFCore.AuditableExtensions.SqlServer.csproj", "{90CB60AF-DC15-4CF1-B855-5DB613B425E3}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{536AA71C-4475-495E-B7F5-892C39957FFA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{536AA71C-4475-495E-B7F5-892C39957FFA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{536AA71C-4475-495E-B7F5-892C39957FFA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{536AA71C-4475-495E-B7F5-892C39957FFA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{90CB60AF-DC15-4CF1-B855-5DB613B425E3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{90CB60AF-DC15-4CF1-B855-5DB613B425E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{90CB60AF-DC15-4CF1-B855-5DB613B425E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{90CB60AF-DC15-4CF1-B855-5DB613B425E3}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
