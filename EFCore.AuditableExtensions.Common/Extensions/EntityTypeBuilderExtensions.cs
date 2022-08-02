@@ -14,7 +14,8 @@ public static class EntityTypeBuilderExtensions
     {
         var auditOptions = AuditOptionsFactory.GetConfiguredAuditOptions(configureOptions);
         var auditTable = AuditTableFactory.CreateFromEntityType(entityTypeBuilder.GetEntityType(), auditOptions);
-        var audit = new Audit<T>(auditTable, Array.Empty<AuditTrigger>(), auditOptions);
+        var auditName = $"{Constants.AnnotationPrefix}:{nameof(T)}";
+        var audit = new Audit(auditName, auditTable, Array.Empty<AuditTrigger>());
         return entityTypeBuilder.AddAuditAnnotation(audit);
     }
 
@@ -29,7 +30,7 @@ public static class EntityTypeBuilderExtensions
         return entityType;
     }
 
-    private static EntityTypeBuilder<T> AddAuditAnnotation<T>(this EntityTypeBuilder<T> entityTypeBuilder, IAudit audit) where T : class
+    private static EntityTypeBuilder<T> AddAuditAnnotation<T>(this EntityTypeBuilder<T> entityTypeBuilder, Audit audit) where T : class
     {
         var entityType = entityTypeBuilder.GetEntityType();
         entityType.AddAnnotation(audit.Name, audit.Serialize());

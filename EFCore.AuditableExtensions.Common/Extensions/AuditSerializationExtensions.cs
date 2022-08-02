@@ -1,25 +1,22 @@
-﻿using EFCore.AuditableExtensions.Common.Annotations;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
+﻿using System.Text.Json;
+using System.Text.Json.Serialization;
+using EFCore.AuditableExtensions.Common.Annotations;
 
 namespace EFCore.AuditableExtensions.Common.Extensions;
 
 internal static class AuditSerializationExtensions
 {
-    private static JsonSerializerSettings JsonSerializerSettings
+    private static JsonSerializerOptions JsonSerializerOptions
     {
         get
         {
-            var settings = new JsonSerializerSettings
-            {
-                TypeNameHandling = TypeNameHandling.None,
-            };
-            settings.Converters.Add(new StringEnumConverter());
+            var settings = new JsonSerializerOptions(JsonSerializerDefaults.General);
+            settings.Converters.Add(new JsonStringEnumConverter());
             return settings;
         }
     }
 
-    public static string Serialize(this IAudit audit) => JsonConvert.SerializeObject(audit, JsonSerializerSettings);
+    public static string Serialize(this Audit audit) => JsonSerializer.Serialize(audit, JsonSerializerOptions);
 
-    public static IAudit? Deserialize(this string serializedAudit) => JsonConvert.DeserializeObject<SimpleAudit>(serializedAudit, JsonSerializerSettings);
+    public static Audit? Deserialize(this string serializedAudit) => JsonSerializer.Deserialize<Audit>(serializedAudit, JsonSerializerOptions);
 }

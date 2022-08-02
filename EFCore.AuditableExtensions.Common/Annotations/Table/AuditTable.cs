@@ -1,7 +1,4 @@
-﻿using EFCore.AuditableExtensions.Common.Configuration;
-using Newtonsoft.Json;
-
-namespace EFCore.AuditableExtensions.Common.Annotations.Table;
+﻿namespace EFCore.AuditableExtensions.Common.Annotations.Table;
 
 #pragma warning disable EF1001
 
@@ -12,30 +9,16 @@ internal interface IAuditTable
     IReadOnlyCollection<AuditTableColumn> Columns { get; }
 }
 
-internal class AuditTable<T> : IAuditTable where T : class
+internal class AuditTable : IAuditTable
 {
     public string Name { get; }
 
     public IReadOnlyCollection<AuditTableColumn> Columns { get; }
 
-    public AuditTable(IReadOnlyCollection<AuditTableColumn> columns, AuditOptions<T> options)
+    public AuditTable(string name, IReadOnlyCollection<AuditTableColumn> columns)
     {
         Columns = columns;
-        Name = options.AuditTableName;
-    }
-}
-
-internal class SimpleAuditTable : IAuditTable
-{
-    public string Name { get; }
-
-    public IReadOnlyCollection<AuditTableColumn> Columns { get; }
-
-    [JsonConstructor]
-    public SimpleAuditTable(string name, IReadOnlyCollection<AuditTableColumn> columns)
-    {
         Name = name;
-        Columns = columns;
     }
 }
 

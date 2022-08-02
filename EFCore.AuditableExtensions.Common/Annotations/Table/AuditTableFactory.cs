@@ -1,5 +1,6 @@
 ﻿using EFCore.AuditableExtensions.Common.Configuration;
 using EFCore.AuditableExtensions.Common.Extensions;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace EFCore.AuditableExtensions.Common.Annotations.Table;
@@ -15,13 +16,13 @@ internal static class AuditTableFactory
         new AuditTableColumn(AuditColumnType.DateTime, Constants.AuditTableColumnNames.Timestamp, false),
     };
 
-    private static AuditTableColumn GetKeyColumn<T>(IMutableEntityType mutableEntityType, AuditOptions<T> options) where T : class
+    private static AuditTableColumn GetKeyColumn<T>(IReadOnlyEntityType entityType, AuditOptions<T> options) where T : class
     {
         string keyName;
         Type keyType;
         if (options.AuditedEntityKeySelector == null)
         {
-            (keyName, keyType) = mutableEntityType.GetSimpleKeyNameAndType();
+            (keyName, keyType) = entityType.GetSimpleKeyNameAndType();
             if (string.IsNullOrEmpty(keyName))
             {
                 throw new InvalidOperationException("Auditable entity must either have a simple Key or the AuditedEntityKeySelector must be provided");
@@ -39,21 +40,25 @@ internal static class AuditTableFactory
         return new AuditTableColumn(keyType.GetAuditColumnType(), keyName, false);
     }
 
-    private static IReadOnlyCollection<AuditTableColumn> GetColumnsForEntityType<T>(IMutableEntityType mutableEntityType, AuditOptions<T> options) where T : class
+    private static IReadOnlyCollection<AuditTableColumn> GetColumnsForEntityType<T>(IReadOnlyEntityType entityType, AuditOptions<T> options) where T : class
     {
         var columns = new List<AuditTableColumn>
         {
-            GetKeyColumn(mutableEntityType, options),
+            GetKeyColumn(entityType, options),
         };
         columns.AddRange(GetDefaultColumns());
 
         return columns.ToArray();
     }
+    
+    private static string GetNameForEntityType<T>(IReadOnlyEntityType entityType, AuditOptions<T> options) where T : class 
+        => string.IsNullOrEmpty(options.AuditTableName) ? $"{entityType.GetTableName()}{Constants.AuditTableNameSuffix}" : options.AuditTableName;
 
-    public static AuditTable<T> CreateFromEntityType<T>(IMutableEntityType mutableEntityType, AuditOptions<T> options) where T : class
+    public static AuditTable CreateFromEntityType<T>(IReadOnlyEntityType entityType, AuditOptions<T> options) where T : class
     {
-        var columns = GetColumnsForEntityType(mutableEntityType, options);
+        var columns = GetColumnsForEntityType(entityType, options);
+        var name = GetNameForEntityType(entityType, options);
 
-        return new AuditTable<T>(columns, options);
+        return new AuditTable(name, columns);
     }
 }
