@@ -10,7 +10,11 @@ public static class Installer
 {
     public static DbContextOptionsBuilder UseSqlServerAudit(this DbContextOptionsBuilder optionsBuilder) => optionsBuilder.UseAuditableExtension(AddSqlServerServices).ReplaceSqlServerServices();
 
-    private static void AddSqlServerServices(this IServiceCollection services) => services.AddScoped<ICreateAuditTriggerSqlGenerator, CreateAuditTriggerSqlGenerator>();
+    private static void AddSqlServerServices(this IServiceCollection services)
+    {
+        services.AddScoped<ICreateAuditTriggerSqlGenerator, CreateAuditTriggerSqlGenerator>();
+        services.AddScoped<IDropAuditTriggerSqlGenerator, DropAuditTriggerSqlGenerator>();
+    }
 
     private static DbContextOptionsBuilder ReplaceSqlServerServices(this DbContextOptionsBuilder optionsBuilder)
     {

@@ -10,9 +10,12 @@ internal class MigrationsSqlGenerator : SqlServerMigrationsSqlGenerator
 {
     private readonly ICreateAuditTriggerSqlGenerator _createAuditTriggerSqlGenerator;
 
-    public MigrationsSqlGenerator(MigrationsSqlGeneratorDependencies dependencies, IRelationalAnnotationProvider migrationsAnnotations, ICreateAuditTriggerSqlGenerator createAuditTriggerSqlGenerator) : base(dependencies, migrationsAnnotations)
+    private readonly IDropAuditTriggerSqlGenerator _dropAuditTriggerSqlGenerator;
+
+    public MigrationsSqlGenerator(MigrationsSqlGeneratorDependencies dependencies, IRelationalAnnotationProvider migrationsAnnotations, ICreateAuditTriggerSqlGenerator createAuditTriggerSqlGenerator, IDropAuditTriggerSqlGenerator dropAuditTriggerSqlGenerator) : base(dependencies, migrationsAnnotations)
     {
         _createAuditTriggerSqlGenerator = createAuditTriggerSqlGenerator;
+        _dropAuditTriggerSqlGenerator = dropAuditTriggerSqlGenerator;
     }
 
     protected override void Generate(MigrationOperation operation, IModel? model, MigrationCommandListBuilder builder)
@@ -22,6 +25,9 @@ internal class MigrationsSqlGenerator : SqlServerMigrationsSqlGenerator
             case CreateAuditTriggerOperation createAuditTriggerOperation:
                 _createAuditTriggerSqlGenerator.Generate(createAuditTriggerOperation, builder);
                 break;
+
+            case DropAuditTriggerOperation dropAuditTriggerOperation:
+                _dropAuditTriggerSqlGenerator.Generate(dropAuditTriggerOperation, builder);
                 break;
 
             default:

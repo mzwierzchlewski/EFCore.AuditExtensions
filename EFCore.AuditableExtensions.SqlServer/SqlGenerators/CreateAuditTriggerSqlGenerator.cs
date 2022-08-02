@@ -40,7 +40,7 @@ internal class CreateAuditTriggerSqlGenerator : ICreateAuditTriggerSqlGenerator
 
     public void Generate(CreateAuditTriggerOperation operation, MigrationCommandListBuilder builder)
     {
-        foreach (var sqlLine in BaseSql.Split('\n'))
+        foreach (var sqlLine in BaseSql.Split('\n').Where(line => !string.IsNullOrEmpty(line)))
         {
             builder.AppendLine(ReplacePlaceholders(sqlLine, operation));
         }
