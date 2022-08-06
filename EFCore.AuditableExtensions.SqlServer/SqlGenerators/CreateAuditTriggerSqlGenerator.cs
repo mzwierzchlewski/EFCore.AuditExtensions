@@ -18,7 +18,7 @@ internal class CreateAuditTriggerSqlGenerator : ICreateAuditTriggerSqlGenerator
     FOR {OperationType} AS
     BEGIN
     DECLARE @user varchar(255)
-    SELECT @user = CAST(SESSION_CONTEXT(N'user') AS varchar(255))
+    SELECT @user = COALESCE(CAST(SESSION_CONTEXT(N'user') AS VARCHAR(255)), CONCAT(SUSER_NAME(), ' [db]'))
      
     INSERT INTO [{AuditTableName}] (
         [{KeyColumnName}],

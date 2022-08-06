@@ -1,4 +1,6 @@
 ﻿using EFCore.AuditableExtensions.Common.Extensions;
+using EFCore.AuditableExtensions.Common.Interceptors;
+using EFCore.AuditableExtensions.SqlServer.Interceptors;
 using EFCore.AuditableExtensions.SqlServer.SqlGenerators;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
@@ -8,7 +10,15 @@ namespace EFCore.AuditableExtensions.SqlServer;
 
 public static class Installer
 {
-    public static DbContextOptionsBuilder UseSqlServerAudit(this DbContextOptionsBuilder optionsBuilder) => optionsBuilder.UseAuditableExtension(AddSqlServerServices).ReplaceSqlServerServices();
+    public static IServiceCollection AddSqlServerAuditUserProvider<TUserProvider>(this IServiceCollection services) where TUserProvider : class, IUserProvider
+    {
+        services.AddScoped<IUserProvider, TUserProvider>();
+        services.AddScoped<UserContextInterceptor>();
+
+        return services;
+    }
+
+    public static DbContextOptionsBuilder UseSqlServerAudit(this DbContextOptionsBuilder optionsBuilder, IServiceProvider serviceProvider) => optionsBuilder.UseAuditableExtension(AddSqlServerServices).CustomiseDbContext(serviceProvider);
 
     private static void AddSqlServerServices(this IServiceCollection services)
     {
@@ -17,10 +27,16 @@ public static class Installer
         services.AddScoped<IDropAuditTriggerSqlGenerator, DropAuditTriggerSqlGenerator>();
     }
 
-    private static DbContextOptionsBuilder ReplaceSqlServerServices(this DbContextOptionsBuilder optionsBuilder)
+    private static DbContextOptionsBuilder CustomiseDbContext(this DbContextOptionsBuilder optionsBuilder, IServiceProvider serviceProvider)
     {
         optionsBuilder.ReplaceService<IMigrationsSqlGenerator, MigrationsSqlGenerator>();
 
-        return optionsBuilder;
+        var userContextInterceptor = serviceProvider.GetService<UserContextInterceptor>();
+        if (userContextInterceptor == null)
+        {
+            return optionsBuilder;
+        }
+
+        return optionsBuilder.AddInterceptors(userContextInterceptor);
     }
 }
