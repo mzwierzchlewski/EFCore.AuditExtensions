@@ -9,7 +9,7 @@ namespace EFCore.AuditableExtensions.Common.EfCore;
 
 internal static class EfCoreTableFactory
 {
-    public static Table ToEfCoreTable(this IAuditTable auditTable, RelationalModel relationalModel, IRelationalTypeMappingSource relationalTypeMappingSource)
+    public static Table ToEfCoreTable(this AuditTable auditTable, RelationalModel relationalModel, IRelationalTypeMappingSource relationalTypeMappingSource)
     {
         var table = new Table(auditTable.Name, null, relationalModel);
         var model = relationalModel.Model as Model ?? throw new ArgumentException("Invalid Model property in RelationalModel argument", nameof(relationalModel));

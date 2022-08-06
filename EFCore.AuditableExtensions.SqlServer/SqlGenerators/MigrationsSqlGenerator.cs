@@ -1,10 +1,10 @@
 ﻿using EFCore.AuditableExtensions.Common.Migrations.Operations;
-using EFCore.AuditableExtensions.SqlServer.SqlGenerators;
+using EFCore.AuditableExtensions.SqlServer.SqlGenerators.Operations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 
-namespace EFCore.AuditableExtensions.SqlServer;
+namespace EFCore.AuditableExtensions.SqlServer.SqlGenerators;
 
 internal class MigrationsSqlGenerator : SqlServerMigrationsSqlGenerator
 {

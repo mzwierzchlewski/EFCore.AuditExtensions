@@ -4,7 +4,7 @@ using EFCore.AuditableExtensions.Common.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Migrations;
 using SmartFormat;
 
-namespace EFCore.AuditableExtensions.SqlServer.SqlGenerators;
+namespace EFCore.AuditableExtensions.SqlServer.SqlGenerators.Operations;
 
 internal interface ICreateAuditTriggerSqlGenerator
 {

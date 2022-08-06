@@ -1,13 +1,6 @@
 ﻿namespace EFCore.AuditableExtensions.Common.Annotations.Table;
 
-internal interface IAuditTable
-{
-    string Name { get; }
-
-    IReadOnlyCollection<AuditTableColumn> Columns { get; }
-}
-
-internal class AuditTable : IAuditTable
+internal class AuditTable
 {
     public string Name { get; }
 

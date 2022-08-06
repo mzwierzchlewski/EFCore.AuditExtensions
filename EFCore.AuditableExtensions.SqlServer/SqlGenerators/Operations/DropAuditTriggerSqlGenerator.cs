@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore.Migrations;
 using SmartFormat;
 
-namespace EFCore.AuditableExtensions.SqlServer.SqlGenerators;
+namespace EFCore.AuditableExtensions.SqlServer.SqlGenerators.Operations;
 
 internal interface IDropAuditTriggerSqlGenerator
 {
