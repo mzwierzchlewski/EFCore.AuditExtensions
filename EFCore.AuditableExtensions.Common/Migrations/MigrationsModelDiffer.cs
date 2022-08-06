@@ -101,15 +101,7 @@ public class MigrationsModelDiffer : Microsoft.EntityFrameworkCore.Migrations.In
         }
     }
 
-    private static bool CompareAuditedEntityTypes(AuditedEntityType source, AuditedEntityType target, DiffContext diffContext)
-    {
-        if (source.EntityType.Name == target.EntityType.Name)
-        {
-            return true;
-        }
-
-        return false;
-    }
+    private static bool CompareAuditedEntityTypes(AuditedEntityType source, AuditedEntityType target, DiffContext diffContext) => source.EntityType.Name == target.EntityType.Name;
 
     #endregion
 
@@ -121,7 +113,7 @@ public class MigrationsModelDiffer : Microsoft.EntityFrameworkCore.Migrations.In
         DiffContext diffContext)
         => DiffCollection(source, target, diffContext, Diff, Add, Remove, CompareAuditTriggers);
 
-    private IEnumerable<MigrationOperation> Diff(AuditTrigger source, AuditTrigger target, DiffContext diffContext)
+    private static IEnumerable<MigrationOperation> Diff(AuditTrigger source, AuditTrigger target, DiffContext diffContext)
     {
         var dropOperations = Remove(source, diffContext);
         foreach (var operation in dropOperations)
@@ -136,26 +128,19 @@ public class MigrationsModelDiffer : Microsoft.EntityFrameworkCore.Migrations.In
         }
     }
 
-    private IEnumerable<MigrationOperation> Add(AuditTrigger target, DiffContext diffContext)
+    private static IEnumerable<MigrationOperation> Add(AuditTrigger target, DiffContext diffContext)
     {
-        var operation = new CreateAuditTriggerOperation(
+        yield return new CreateAuditTriggerOperation(
             target.TableName,
             target.AuditTableName,
             target.Name,
             target.OperationType,
             target.AuditedEntityTableKeyColumnName);
-        operation.AddAnnotation("Dependency_StatementType", target.OperationType);
-        operation.AddAnnotation("Dependency_MigrationBuilderExtensions", GetNamespace.MigrationBuilderExtensions);
-
-        yield return operation;
     }
 
-    private IEnumerable<MigrationOperation> Remove(AuditTrigger source, DiffContext diffContext)
+    private static IEnumerable<MigrationOperation> Remove(AuditTrigger source, DiffContext diffContext)
     {
-        var operation = new DropAuditTriggerOperation(source.Name);
-        operation.AddAnnotation("Dependency_MigrationBuilderExtensions", GetNamespace.MigrationBuilderExtensions);
-
-        yield return operation;
+        yield return new DropAuditTriggerOperation(source.Name);
     }
 
     private static bool CompareAuditTriggers(AuditTrigger source, AuditTrigger target, DiffContext diffContext) => source == target;

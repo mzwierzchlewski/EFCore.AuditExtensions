@@ -7,10 +7,10 @@ using SmartFormat;
 
 namespace EFCore.AuditableExtensions.Common.Migrations;
 
-internal class MigrationsCSharpGenerator : CSharpMigrationOperationGenerator
+internal class CSharpMigrationOperationGenerator : Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationOperationGenerator
 {
-    private const string BaseCreateAuditTriggerCSharp = $@"
-        .CreateAuditTrigger(
+    private const string BaseCreateAuditTriggerCSharp =
+        $@".CreateAuditTrigger(
         ""{{AuditedEntityTableName}}"",
         ""{{AuditTableName}}"",
         ""{{TriggerName}}"",
@@ -19,7 +19,7 @@ internal class MigrationsCSharpGenerator : CSharpMigrationOperationGenerator
 
     private const string BaseDropAuditTriggerCSharp = @".DropAuditTrigger(""{TriggerName}"")";
 
-    public MigrationsCSharpGenerator(CSharpMigrationOperationGeneratorDependencies dependencies) : base(dependencies)
+    public CSharpMigrationOperationGenerator(CSharpMigrationOperationGeneratorDependencies dependencies) : base(dependencies)
     { }
 
     protected override void Generate(MigrationOperation operation, IndentedStringBuilder builder)
