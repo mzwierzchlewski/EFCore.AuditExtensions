@@ -12,10 +12,12 @@ public static class EntityTypeBuilderExtensions
     public static EntityTypeBuilder<T> IsAudited<T>(this EntityTypeBuilder<T> entityTypeBuilder, Action<AuditOptions<T>>? configureOptions = null)
         where T : class
     {
+        var entityType = entityTypeBuilder.GetEntityType();
         var auditOptions = AuditOptionsFactory.GetConfiguredAuditOptions(configureOptions);
-        var auditTable = AuditTableFactory.CreateFromEntityType(entityTypeBuilder.GetEntityType(), auditOptions);
+        var auditTable = AuditTableFactory.CreateFromEntityType(entityType, auditOptions);
+        var auditTriggers = AuditTriggerFactory.CreateFromAuditTableAndEntityType(auditTable, entityType);
         var auditName = $"{Constants.AnnotationPrefix}:{nameof(T)}";
-        var audit = new Audit(auditName, auditTable, Array.Empty<AuditTrigger>());
+        var audit = new Audit(auditName, auditTable, auditTriggers);
         return entityTypeBuilder.AddAuditAnnotation(audit);
     }
 

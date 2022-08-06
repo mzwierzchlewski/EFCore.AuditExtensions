@@ -7,13 +7,21 @@ namespace EFCore.AuditableExtensions.Common.Annotations.Table;
 
 internal static class AuditTableFactory
 {
+    public static AuditTable CreateFromEntityType<T>(IReadOnlyEntityType entityType, AuditOptions<T> options) where T : class
+    {
+        var columns = GetColumnsForEntityType(entityType, options);
+        var name = GetNameForEntityType(entityType, options);
+
+        return new AuditTable(name, columns);
+    }
+
     private static AuditTableColumn[] GetDefaultColumns() => new[]
     {
-        new AuditTableColumn(AuditColumnType.Text, Constants.AuditTableColumnNames.OldData, true),
-        new AuditTableColumn(AuditColumnType.Text, Constants.AuditTableColumnNames.NewData, true),
-        new AuditTableColumn(AuditColumnType.Text, Constants.AuditTableColumnNames.OperationType, false),
-        new AuditTableColumn(AuditColumnType.Text, Constants.AuditTableColumnNames.User, false),
-        new AuditTableColumn(AuditColumnType.DateTime, Constants.AuditTableColumnNames.Timestamp, false),
+        new AuditTableColumn(AuditColumnType.Text, Constants.AuditTableColumnNames.OldData, true, false),
+        new AuditTableColumn(AuditColumnType.Text, Constants.AuditTableColumnNames.NewData, true, false),
+        new AuditTableColumn(AuditColumnType.Text, Constants.AuditTableColumnNames.OperationType, false, false),
+        new AuditTableColumn(AuditColumnType.Text, Constants.AuditTableColumnNames.User, false, false),
+        new AuditTableColumn(AuditColumnType.DateTime, Constants.AuditTableColumnNames.Timestamp, false, false),
     };
 
     private static AuditTableColumn GetKeyColumn<T>(IReadOnlyEntityType entityType, AuditOptions<T> options) where T : class
@@ -37,7 +45,7 @@ internal static class AuditTableFactory
             }
         }
 
-        return new AuditTableColumn(keyType.GetAuditColumnType(), keyName, false);
+        return new AuditTableColumn(keyType.GetAuditColumnType(), keyName, false, true);
     }
 
     private static IReadOnlyCollection<AuditTableColumn> GetColumnsForEntityType<T>(IReadOnlyEntityType entityType, AuditOptions<T> options) where T : class
@@ -50,15 +58,7 @@ internal static class AuditTableFactory
 
         return columns.ToArray();
     }
-    
-    private static string GetNameForEntityType<T>(IReadOnlyEntityType entityType, AuditOptions<T> options) where T : class 
+
+    private static string GetNameForEntityType<T>(IReadOnlyEntityType entityType, AuditOptions<T> options) where T : class
         => string.IsNullOrEmpty(options.AuditTableName) ? $"{entityType.GetTableName()}{Constants.AuditTableNameSuffix}" : options.AuditTableName;
-
-    public static AuditTable CreateFromEntityType<T>(IReadOnlyEntityType entityType, AuditOptions<T> options) where T : class
-    {
-        var columns = GetColumnsForEntityType(entityType, options);
-        var name = GetNameForEntityType(entityType, options);
-
-        return new AuditTable(name, columns);
-    }
 }

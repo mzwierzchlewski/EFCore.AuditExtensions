@@ -8,10 +8,13 @@ internal class AuditTableColumn
 
     public bool Nullable { get; }
 
-    public AuditTableColumn(AuditColumnType type, string name, bool nullable)
+    public bool AuditedEntityKey { get; }
+
+    public AuditTableColumn(AuditColumnType type, string name, bool nullable, bool auditedEntityKey)
     {
         Type = type;
         Name = name;
         Nullable = nullable;
+        AuditedEntityKey = auditedEntityKey;
     }
 }

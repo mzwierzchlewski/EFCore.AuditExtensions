@@ -12,6 +12,7 @@ public static class Installer
 
     private static void AddSqlServerServices(this IServiceCollection services)
     {
+        services.AddLogging();
         services.AddScoped<ICreateAuditTriggerSqlGenerator, CreateAuditTriggerSqlGenerator>();
         services.AddScoped<IDropAuditTriggerSqlGenerator, DropAuditTriggerSqlGenerator>();
     }

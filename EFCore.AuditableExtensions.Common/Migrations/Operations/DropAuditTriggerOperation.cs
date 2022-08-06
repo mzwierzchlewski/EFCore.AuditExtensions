@@ -2,7 +2,7 @@
 
 namespace EFCore.AuditableExtensions.Common.Migrations.Operations;
 
-internal class DropAuditTriggerOperation : MigrationOperation
+public class DropAuditTriggerOperation : MigrationOperation
 {
     public string TriggerName { get; }
 

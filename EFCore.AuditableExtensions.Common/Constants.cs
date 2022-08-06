@@ -6,6 +6,8 @@ internal static class Constants
 
     public static string AuditTableNameSuffix => "_Audit";
 
+    public static string AuditTriggerPrefix => "Audit_";
+
     public static class AuditTableColumnNames
     {
         public static string OldData = nameof(OldData);

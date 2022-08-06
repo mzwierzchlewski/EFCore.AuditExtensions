@@ -14,24 +14,24 @@ internal interface ICreateAuditTriggerSqlGenerator
 internal class CreateAuditTriggerSqlGenerator : ICreateAuditTriggerSqlGenerator
 {
     private const string BaseSql = @"
-    CREATE TRIGGER {TriggerName} ON {AuditedEntityTableName}
+    CREATE TRIGGER [{TriggerName}] ON [{AuditedEntityTableName}]
     FOR {OperationType} AS
     BEGIN
     DECLARE @user varchar(255)
     SELECT @user = CAST(SESSION_CONTEXT(N'user') AS varchar(255))
      
-    INSERT INTO {AuditTableName} (
-        {KeyColumnName},
-        {OldDataColumnName},
-        {NewDataColumnName},
-        {OperationTypeColumnName},
-        {UserColumnName}
-        {TimestampColumnName},
+    INSERT INTO [{AuditTableName}] (
+        [{KeyColumnName}],
+        [{OldDataColumnName}],
+        [{NewDataColumnName}],
+        [{OperationTypeColumnName}],
+        [{UserColumnName}],
+        [{TimestampColumnName}]
     )
     VALUES(
         (SELECT {KeyColumnName} FROM {KeySource}),
-        {OldRowDataSql},
-        {NewRowDataSql},
+        {OldDataSql},
+        {NewDataSql},
         '{OperationType}',
         @user,
         GETUTCDATE()
@@ -40,19 +40,16 @@ internal class CreateAuditTriggerSqlGenerator : ICreateAuditTriggerSqlGenerator
 
     public void Generate(CreateAuditTriggerOperation operation, MigrationCommandListBuilder builder)
     {
+        var sqlParameters = GetSqlParameters(operation);
         foreach (var sqlLine in BaseSql.Split('\n').Where(line => !string.IsNullOrEmpty(line)))
         {
-            builder.AppendLine(ReplacePlaceholders(sqlLine, operation));
+            builder.AppendLine(ReplacePlaceholders(sqlLine, sqlParameters));
         }
 
         builder.EndCommand();
     }
 
-    private static string ReplacePlaceholders(string sql, CreateAuditTriggerOperation operation)
-    {
-        var parameters = GetSqlParameters(operation);
-        return Smart.Format(sql, parameters);
-    }
+    private static string ReplacePlaceholders(string sql, CreateAuditTriggerSqlParameters parameters) => Smart.Format(sql, parameters);
 
     private static CreateAuditTriggerSqlParameters GetSqlParameters(CreateAuditTriggerOperation operation)
     {
@@ -63,14 +60,14 @@ internal class CreateAuditTriggerSqlGenerator : ICreateAuditTriggerSqlGenerator
             _                                            => throw new ArgumentOutOfRangeException(nameof(statementType), statementType, "Value not supported"),
         };
 
-        string GetOldRowDataSql(StatementType statementType) => statementType switch
+        string GetOldDataSql(StatementType statementType) => statementType switch
         {
             StatementType.Insert                         => "null",
             StatementType.Update or StatementType.Delete => "(SELECT * FROM Deleted FOR JSON PATH, WITHOUT_ARRAY_WRAPPER)",
             _                                            => throw new ArgumentOutOfRangeException(nameof(statementType), statementType, "Value not supported"),
         };
 
-        string GetNewRowDataSql(StatementType statementType) => statementType switch
+        string GetNewDataSql(StatementType statementType) => statementType switch
         {
             StatementType.Insert or StatementType.Update => "(SELECT * FROM Inserted FOR JSON PATH, WITHOUT_ARRAY_WRAPPER)",
             StatementType.Delete                         => "null",
@@ -84,8 +81,8 @@ internal class CreateAuditTriggerSqlGenerator : ICreateAuditTriggerSqlGenerator
             AuditTableName = operation.AuditTableName,
             OperationType = operation.OperationType.ToString().ToUpper(),
             KeyColumnName = operation.AuditedEntityTableKeyColumnName,
-            OldRowDataSql = GetOldRowDataSql(operation.OperationType),
-            NewRowDataSql = GetNewRowDataSql(operation.OperationType),
+            OldDataSql = GetOldDataSql(operation.OperationType),
+            NewDataSql = GetNewDataSql(operation.OperationType),
             KeySource = GetKeySource(operation.OperationType),
             OldDataColumnName = Constants.AuditTableColumnNames.OldData,
             NewDataColumnName = Constants.AuditTableColumnNames.NewData,
@@ -107,9 +104,9 @@ internal class CreateAuditTriggerSqlGenerator : ICreateAuditTriggerSqlGenerator
 
         public string? KeySource { get; set; }
 
-        public string? OldRowDataSql { get; set; }
+        public string? OldDataSql { get; init; }
 
-        public string? NewRowDataSql { get; set; }
+        public string? NewDataSql { get; init; }
 
         public string? KeyColumnName { get; set; }
 

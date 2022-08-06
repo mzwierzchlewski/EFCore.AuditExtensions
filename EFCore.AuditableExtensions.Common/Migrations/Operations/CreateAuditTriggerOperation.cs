@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations.Operations;
 
 namespace EFCore.AuditableExtensions.Common.Migrations.Operations;
 
-internal class CreateAuditTriggerOperation : MigrationOperation
+public class CreateAuditTriggerOperation : MigrationOperation
 {
     public string TriggerName { get; }
 
