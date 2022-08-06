@@ -94,30 +94,30 @@ internal class CreateAuditTriggerSqlGenerator : ICreateAuditTriggerSqlGenerator
 
     private class CreateAuditTriggerSqlParameters
     {
-        public string? TriggerName { get; set; }
+        public string? TriggerName { get; init; }
 
-        public string? AuditedEntityTableName { get; set; }
+        public string? AuditedEntityTableName { get; init; }
 
-        public string? OperationType { get; set; }
+        public string? OperationType { get; init; }
 
-        public string? AuditTableName { get; set; }
+        public string? AuditTableName { get; init; }
 
-        public string? KeySource { get; set; }
+        public string? KeySource { get; init; }
 
         public string? OldDataSql { get; init; }
-
+        
         public string? NewDataSql { get; init; }
 
-        public string? KeyColumnName { get; set; }
+        public string? KeyColumnName { get; init; }
 
-        public string? OldDataColumnName { get; set; }
+        public string? OldDataColumnName { get; init; }
 
-        public string? NewDataColumnName { get; set; }
+        public string? NewDataColumnName { get; init; }
 
-        public string? OperationTypeColumnName { get; set; }
+        public string? OperationTypeColumnName { get; init; }
 
-        public string? UserColumnName { get; set; }
+        public string? UserColumnName { get; init; }
 
-        public string? TimestampColumnName { get; set; }
+        public string? TimestampColumnName { get; init; }
     }
 }

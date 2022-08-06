@@ -33,6 +33,6 @@ internal class DropAuditTriggerSqlGenerator : IDropAuditTriggerSqlGenerator
 
     private class DropAuditTriggerSqlParameters
     {
-        public string? TriggerName { get; set; }
+        public string? TriggerName { get; init; }
     }
 }

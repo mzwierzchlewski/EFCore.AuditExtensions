@@ -1,7 +1,5 @@
 ﻿namespace EFCore.AuditableExtensions.Common.Annotations.Table;
 
-#pragma warning disable EF1001
-
 internal interface IAuditTable
 {
     string Name { get; }
@@ -21,5 +19,3 @@ internal class AuditTable : IAuditTable
         Name = name;
     }
 }
-
-#pragma warning restore EF1001
