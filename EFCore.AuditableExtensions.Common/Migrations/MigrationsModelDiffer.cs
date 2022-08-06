@@ -36,14 +36,23 @@ public class MigrationsModelDiffer : Microsoft.EntityFrameworkCore.Migrations.In
 
     public override IReadOnlyList<MigrationOperation> GetDifferences(IRelationalModel? source, IRelationalModel? target)
     {
-        var auditMigrationOperations = new List<MigrationOperation>();
-
         var sourceAuditedEntityTypes = GetAuditedEntityTypes(source);
         var targetAuditedEntityTypes = GetAuditedEntityTypes(target);
 
         var diffContext = new DiffContext();
-        auditMigrationOperations.AddRange(Diff(sourceAuditedEntityTypes, targetAuditedEntityTypes, diffContext));
-        return base.GetDifferences(source, target).Concat(auditMigrationOperations).ToArray();
+        var auditMigrationOperations = Diff(sourceAuditedEntityTypes, targetAuditedEntityTypes, diffContext);
+        var baseMigrationOperations = base.GetDifferences(source, target);
+
+        return Sort(auditMigrationOperations, baseMigrationOperations);
+    }
+
+    private static IReadOnlyList<MigrationOperation> Sort(IEnumerable<MigrationOperation> auditMigrationOperations, IEnumerable<MigrationOperation> otherOperations)
+    {
+        var auditMigrationOperationsArray = auditMigrationOperations as MigrationOperation[] ?? auditMigrationOperations.ToArray();
+        var dropAuditTriggerOperations = auditMigrationOperationsArray.OfType<DropAuditTriggerOperation>().ToArray();
+        var leftoverAuditOperations = auditMigrationOperationsArray.Except(dropAuditTriggerOperations);
+
+        return dropAuditTriggerOperations.Concat(otherOperations).Concat(leftoverAuditOperations).ToList();
     }
 
     #region Diff - AuditedEntityType
@@ -88,14 +97,14 @@ public class MigrationsModelDiffer : Microsoft.EntityFrameworkCore.Migrations.In
 
     private IEnumerable<MigrationOperation> Remove(AuditedEntityType source, DiffContext diffContext)
     {
-        var targetTable = source.Audit.Table.ToEfCoreTable((RelationalModel)source.EntityType.Model.GetRelationalModel(), TypeMappingSource);
-        foreach (var operation in Remove(targetTable, diffContext))
+        foreach (var trigger in source.Audit.Triggers)
+        foreach (var operation in Remove(trigger, diffContext))
         {
             yield return operation;
         }
 
-        foreach (var trigger in source.Audit.Triggers)
-        foreach (var operation in Remove(trigger, diffContext))
+        var targetTable = source.Audit.Table.ToEfCoreTable((RelationalModel)source.EntityType.Model.GetRelationalModel(), TypeMappingSource);
+        foreach (var operation in Remove(targetTable, diffContext))
         {
             yield return operation;
         }
