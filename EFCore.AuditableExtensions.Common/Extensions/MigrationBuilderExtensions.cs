@@ -1,4 +1,5 @@
 ﻿using System.Data;
+using EFCore.AuditableExtensions.Common.Annotations.Table;
 using EFCore.AuditableExtensions.Common.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations.Builders;
@@ -18,9 +19,10 @@ public static class MigrationBuilderExtensions
         string auditTableName,
         string triggerName,
         StatementType operationType,
-        string auditedEntityTableKeyColumnName)
+        string auditedEntityTableKeyColumnName,
+        AuditColumnType auditedEntityTableKeyColumnType)
     {
-        var operation = new CreateAuditTriggerOperation(auditedEntityTableName, auditTableName, triggerName, operationType, auditedEntityTableKeyColumnName);
+        var operation = new CreateAuditTriggerOperation(auditedEntityTableName, auditTableName, triggerName, operationType, auditedEntityTableKeyColumnName, auditedEntityTableKeyColumnType);
         migrationBuilder.Operations.Add(operation);
 
         return new OperationBuilder<CreateAuditTriggerOperation>(operation);

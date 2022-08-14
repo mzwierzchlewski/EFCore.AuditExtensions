@@ -23,10 +23,11 @@ internal static class AuditTriggerFactory
         var tableName = entityType.GetTableName()!;
         var auditTableName = auditTable.Name;
         var auditEntityKeyColumnName = auditTable.Columns.Single(c => c.AuditedEntityKey).Name;
+        var auditEntityKeyColumnType = auditTable.Columns.Single(c => c.AuditedEntityKey).Type;
         foreach (var triggerOperation in TriggerOperations)
         {
             var triggerName = GetTriggerName(options, tableName, auditTableName, auditEntityKeyColumnName, triggerOperation);
-            result.Add(CreateAuditTrigger(triggerName, tableName, auditTableName, auditEntityKeyColumnName, triggerOperation));
+            result.Add(CreateAuditTrigger(triggerName, tableName, auditTableName, auditEntityKeyColumnName, auditEntityKeyColumnType, triggerOperation));
         }
 
         return result;
@@ -50,8 +51,8 @@ internal static class AuditTriggerFactory
             OperationType = operationType,
         };
 
-    private static AuditTrigger CreateAuditTrigger(string name, string tableName, string auditTableName, string auditedEntityTableKeyColumnName, StatementType operationType)
-        => new(name, tableName, auditTableName, auditedEntityTableKeyColumnName, operationType);
+    private static AuditTrigger CreateAuditTrigger(string name, string tableName, string auditTableName, string auditedEntityTableKeyColumnName, AuditColumnType auditedEntityTableKeyColumnType, StatementType operationType)
+        => new(name, tableName, auditTableName, auditedEntityTableKeyColumnName, auditedEntityTableKeyColumnType, operationType);
 
     private class AuditTriggerNameParameters
     {

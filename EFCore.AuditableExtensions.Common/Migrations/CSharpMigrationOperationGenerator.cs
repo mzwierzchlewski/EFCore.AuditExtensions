@@ -1,4 +1,5 @@
 ﻿using System.Data;
+using EFCore.AuditableExtensions.Common.Annotations.Table;
 using EFCore.AuditableExtensions.Common.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations.Design;
@@ -15,7 +16,8 @@ internal class CSharpMigrationOperationGenerator : Microsoft.EntityFrameworkCore
         ""{{AuditTableName}}"",
         ""{{TriggerName}}"",
         {nameof(StatementType)}.{{OperationType}},
-        ""{{AuditedEntityTableKeyColumnName}}"")";
+        ""{{AuditedEntityTableKeyColumnName}}"",
+        {nameof(AuditColumnType)}.{{AuditedEntityTableKeyColumnType}})";
 
     private const string BaseDropAuditTriggerCSharp = @".DropAuditTrigger(""{TriggerName}"")";
 

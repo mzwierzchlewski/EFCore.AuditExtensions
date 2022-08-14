@@ -144,7 +144,8 @@ public class MigrationsModelDiffer : Microsoft.EntityFrameworkCore.Migrations.In
             target.AuditTableName,
             target.Name,
             target.OperationType,
-            target.AuditedEntityTableKeyColumnName);
+            target.AuditedEntityTableKeyColumnName,
+            target.AuditedEntityTableKeyColumnType);
     }
 
     private static IEnumerable<MigrationOperation> Remove(AuditTrigger source, DiffContext diffContext)

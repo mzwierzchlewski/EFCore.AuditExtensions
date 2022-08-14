@@ -23,7 +23,7 @@ internal class MigrationsSqlGenerator : SqlServerMigrationsSqlGenerator
         switch (operation)
         {
             case CreateAuditTriggerOperation createAuditTriggerOperation:
-                _createAuditTriggerSqlGenerator.Generate(createAuditTriggerOperation, builder);
+                _createAuditTriggerSqlGenerator.Generate(createAuditTriggerOperation, builder, Dependencies.TypeMappingSource);
                 break;
 
             case DropAuditTriggerOperation dropAuditTriggerOperation:
