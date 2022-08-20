@@ -2,17 +2,13 @@
 using System.Text.RegularExpressions;
 using EFCore.AuditableExtensions.Common;
 using EFCore.AuditableExtensions.Common.Extensions;
-using EFCore.AuditableExtensions.Common.Migrations.Operations;
+using EFCore.AuditableExtensions.Common.Migrations.CSharp.Operations;
+using EFCore.AuditableExtensions.Common.Migrations.Sql.Operations;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage;
 using SmartFormat;
 
 namespace EFCore.AuditableExtensions.SqlServer.SqlGenerators.Operations;
-
-internal interface ICreateAuditTriggerSqlGenerator
-{
-    void Generate(CreateAuditTriggerOperation operation, MigrationCommandListBuilder builder, IRelationalTypeMappingSource typeMappingSource);
-}
 
 internal class CreateAuditTriggerSqlGenerator : ICreateAuditTriggerSqlGenerator
 {

@@ -1,8 +1,8 @@
-﻿using EFCore.AuditableExtensions.Common.Migrations.Operations;
+﻿using EFCore.AuditableExtensions.Common.Migrations.CSharp.Operations;
 using Microsoft.EntityFrameworkCore.Migrations.Design;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 
-namespace EFCore.AuditableExtensions.Common.Migrations;
+namespace EFCore.AuditableExtensions.Common.Migrations.CSharp;
 
 internal class CSharpMigrationsGenerator : Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGenerator
 {

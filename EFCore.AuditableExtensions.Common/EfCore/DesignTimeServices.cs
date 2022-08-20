@@ -1,8 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Migrations.Design;
 using Microsoft.Extensions.DependencyInjection;
-using CSharpMigrationOperationGenerator = EFCore.AuditableExtensions.Common.Migrations.CSharpMigrationOperationGenerator;
-using CSharpMigrationsGenerator = EFCore.AuditableExtensions.Common.Migrations.CSharpMigrationsGenerator;
+using CSharpMigrationOperationGenerator = EFCore.AuditableExtensions.Common.Migrations.CSharp.CSharpMigrationOperationGenerator;
+using CSharpMigrationsGenerator = EFCore.AuditableExtensions.Common.Migrations.CSharp.CSharpMigrationsGenerator;
 
 namespace EFCore.AuditableExtensions.Common.EfCore;
 

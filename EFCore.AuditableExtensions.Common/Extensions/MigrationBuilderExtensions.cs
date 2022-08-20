@@ -1,6 +1,6 @@
 ﻿using System.Data;
 using EFCore.AuditableExtensions.Common.Annotations.Table;
-using EFCore.AuditableExtensions.Common.Migrations.Operations;
+using EFCore.AuditableExtensions.Common.Migrations.CSharp.Operations;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations.Builders;
 

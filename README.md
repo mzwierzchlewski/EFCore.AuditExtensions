@@ -22,7 +22,7 @@ created and later managed by it through EF Migrations.
 [assembly: DesignTimeServicesReference("EFCore.AuditableExtensions.Common.EfCore.DesignTimeServices, EFCore.AuditableExtensions.Common")]
 ```
 
-3. Use the `.UseSqlServerAudit(IServiceProvider)` extension of the `DbContextOptionsBuilder`, e.g.:
+3. Use the `.UseSqlServerAudit()` extension of the `DbContextOptionsBuilder`, e.g.:
 
 ```csharp
 var host = Host.CreateDefaultBuilder(args)
@@ -30,9 +30,9 @@ var host = Host.CreateDefaultBuilder(args)
                    services =>
                    {
                        services.AddDbContext<ApplicationDbContext>(
-                           (serviceProvider, options) =>
+                           options =>
                                options.UseSqlServer("<connection-string>")
-                                      .UseSqlServerAudit(serviceProvider));
+                                      .UseSqlServerAudit());
                    }).Build();
 ```
 
@@ -123,7 +123,7 @@ public class UserProvider : IUserProvider
 }
 ```
 
-And use the `AddAuditUserProvider<TUSerProvider>` extension of `IServiceCollection`:
+And use the `UseSqlServerAudit<TUserProvider>()` extension of `DbContextOptionsBuilder`:
 
 ```csharp
 var host = Host.CreateDefaultBuilder(args)
@@ -132,9 +132,9 @@ var host = Host.CreateDefaultBuilder(args)
                    {
                        services.AddAuditUserProvider<UserProvider>();
                        services.AddDbContext<ApplicationDbContext>(
-                           (serviceProvider, options) =>
+                           options =>
                                options.UseSqlServer("<connection-string>")
-                                      .UseSqlServerAudit<UserProvider>(serviceProvider));
+                                      .UseSqlServerAudit<UserProvider>());
                    }).Build();
 ```
 

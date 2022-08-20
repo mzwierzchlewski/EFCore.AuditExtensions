@@ -1,7 +1,7 @@
 ﻿using EFCore.AuditableExtensions.Common.Extensions;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 
-namespace EFCore.AuditableExtensions.Common.Migrations.Operations;
+namespace EFCore.AuditableExtensions.Common.Migrations.CSharp.Operations;
 
 public class DropAuditTriggerOperation : MigrationOperation, IDependentMigrationOperation
 {

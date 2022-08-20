@@ -1,4 +1,4 @@
-﻿namespace EFCore.AuditableExtensions.Common.Migrations.Operations;
+﻿namespace EFCore.AuditableExtensions.Common.Migrations.CSharp.Operations;
 
 public interface IDependentMigrationOperation
 {

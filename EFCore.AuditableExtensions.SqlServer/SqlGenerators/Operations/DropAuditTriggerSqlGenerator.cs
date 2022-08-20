@@ -1,13 +1,9 @@
-﻿using EFCore.AuditableExtensions.Common.Migrations.Operations;
+﻿using EFCore.AuditableExtensions.Common.Migrations.CSharp.Operations;
+using EFCore.AuditableExtensions.Common.Migrations.Sql.Operations;
 using Microsoft.EntityFrameworkCore.Migrations;
 using SmartFormat;
 
 namespace EFCore.AuditableExtensions.SqlServer.SqlGenerators.Operations;
-
-internal interface IDropAuditTriggerSqlGenerator
-{
-    void Generate(DropAuditTriggerOperation operation, MigrationCommandListBuilder builder);
-}
 
 internal class DropAuditTriggerSqlGenerator : IDropAuditTriggerSqlGenerator
 {

@@ -2,7 +2,7 @@
 using EFCore.AuditableExtensions.Common.Annotations.Trigger;
 using EFCore.AuditableExtensions.Common.EfCore;
 using EFCore.AuditableExtensions.Common.Extensions;
-using EFCore.AuditableExtensions.Common.Migrations.Operations;
+using EFCore.AuditableExtensions.Common.Migrations.CSharp.Operations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -158,7 +158,7 @@ public class MigrationsModelDiffer : Microsoft.EntityFrameworkCore.Migrations.In
     {
         yield return new DropAuditTriggerOperation(source.Name);
     }
-    
+
     #endregion
 
     #region AuditedEntityType

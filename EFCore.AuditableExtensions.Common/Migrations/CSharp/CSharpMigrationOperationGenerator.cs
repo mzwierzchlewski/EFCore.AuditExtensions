@@ -1,12 +1,12 @@
 ﻿using System.Data;
 using EFCore.AuditableExtensions.Common.Annotations.Table;
-using EFCore.AuditableExtensions.Common.Migrations.Operations;
+using EFCore.AuditableExtensions.Common.Migrations.CSharp.Operations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations.Design;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using SmartFormat;
 
-namespace EFCore.AuditableExtensions.Common.Migrations;
+namespace EFCore.AuditableExtensions.Common.Migrations.CSharp;
 
 internal class CSharpMigrationOperationGenerator : Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationOperationGenerator
 {

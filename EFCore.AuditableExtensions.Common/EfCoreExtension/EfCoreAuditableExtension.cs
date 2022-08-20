@@ -9,9 +9,9 @@ public class EfCoreAuditableExtension : IDbContextOptionsExtension
 
     public DbContextOptionsExtensionInfo Info { get; }
 
-    public EfCoreAuditableExtension(Action<IServiceCollection> addDefaultServices)
+    public EfCoreAuditableExtension(Action<IServiceCollection> addServices)
     {
-        _addServices = addDefaultServices;
+        _addServices = addServices;
         Info = new EfCoreAuditableExtensionInfo(this);
     }
 

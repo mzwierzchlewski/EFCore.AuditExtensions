@@ -1,18 +1,18 @@
-﻿using EFCore.AuditableExtensions.Common.Migrations.Operations;
-using EFCore.AuditableExtensions.SqlServer.SqlGenerators.Operations;
+﻿using EFCore.AuditableExtensions.Common.Migrations.CSharp.Operations;
+using EFCore.AuditableExtensions.Common.Migrations.Sql.Operations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 
 namespace EFCore.AuditableExtensions.SqlServer.SqlGenerators;
 
-internal class MigrationsSqlGenerator : SqlServerMigrationsSqlGenerator
+internal class SqlServerMigrationsSqlGenerator : Microsoft.EntityFrameworkCore.Migrations.SqlServerMigrationsSqlGenerator
 {
     private readonly ICreateAuditTriggerSqlGenerator _createAuditTriggerSqlGenerator;
 
     private readonly IDropAuditTriggerSqlGenerator _dropAuditTriggerSqlGenerator;
 
-    public MigrationsSqlGenerator(MigrationsSqlGeneratorDependencies dependencies, IRelationalAnnotationProvider migrationsAnnotations, ICreateAuditTriggerSqlGenerator createAuditTriggerSqlGenerator, IDropAuditTriggerSqlGenerator dropAuditTriggerSqlGenerator) : base(dependencies, migrationsAnnotations)
+    public SqlServerMigrationsSqlGenerator(MigrationsSqlGeneratorDependencies dependencies, IRelationalAnnotationProvider migrationsAnnotations, ICreateAuditTriggerSqlGenerator createAuditTriggerSqlGenerator, IDropAuditTriggerSqlGenerator dropAuditTriggerSqlGenerator) : base(dependencies, migrationsAnnotations)
     {
         _createAuditTriggerSqlGenerator = createAuditTriggerSqlGenerator;
         _dropAuditTriggerSqlGenerator = dropAuditTriggerSqlGenerator;
