@@ -17,7 +17,7 @@ internal static class DbContextOptionsBuilderExtensions
         Func<IUserProvider, BaseUserContextInterceptor> createUserContextInterceptor,
         IServiceProvider serviceProvider)
     {
-        ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(new EfCoreAuditableExtension(InternalServiceCollectionExtensions.AddCommonServices + addServices));
+        ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(new EfCoreAuditableExtension(ServiceCollectionExtensions.AddCommonServices + addServices));
 
         optionsBuilder.ReplaceService<IMigrationsModelDiffer, MigrationsModelDiffer>();
         customiseDbContext(optionsBuilder);

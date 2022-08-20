@@ -14,6 +14,17 @@ public static class Installer
     public static DbContextOptionsBuilder UseSqlServerAudit(this DbContextOptionsBuilder optionsBuilder, IServiceProvider serviceProvider)
         => optionsBuilder.UseAuditableExtension(AddSqlServerServices, CustomiseSqlServerDbContext, CreateUserContextInterceptor, serviceProvider);
 
+    
+    public static DbContextOptionsBuilder UseSqlServerAudit<TUserProvider>(this DbContextOptionsBuilder optionsBuilder, IServiceProvider serviceProvider) where TUserProvider : class, IUserProvider
+        => optionsBuilder.UseAuditableExtension(AddSqlServerServices<TUserProvider>, CustomiseSqlServerDbContext, CreateUserContextInterceptor, serviceProvider);
+    
+    private static void AddSqlServerServices<TUserProvider>(this IServiceCollection services) where TUserProvider : class, IUserProvider
+    {
+        services.AddScoped<ICreateAuditTriggerSqlGenerator, CreateAuditTriggerSqlGenerator>();
+        services.AddScoped<IDropAuditTriggerSqlGenerator, DropAuditTriggerSqlGenerator>();
+        services.AddScoped<IUserProvider, TUserProvider>();
+    }
+    
     private static void AddSqlServerServices(this IServiceCollection services)
     {
         services.AddScoped<ICreateAuditTriggerSqlGenerator, CreateAuditTriggerSqlGenerator>();
