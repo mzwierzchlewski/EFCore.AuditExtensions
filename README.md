@@ -1,4 +1,4 @@
-# EFCore Auditable Extensions
+# EFCore Audit Extensions
 
 The aim of this extension is an easy setup of auditing infrastructure for your entities. All changes (insert, update,
 delete) to the entities are logged into a separate table (called _Audit Table_) with the following data:
@@ -15,11 +15,11 @@ created and later managed by it through EF Migrations.
 
 ## Installation (SQL Server)
 
-1. Add `EFCore.AuditableExtensions.SqlServer` to your project.
+1. Add `EFCore.AuditExtensions.SqlServer` to your project.
 2. Add the following attribute to your project:
 
 ```csharp
-[assembly: DesignTimeServicesReference("EFCore.AuditableExtensions.Common.EfCore.DesignTimeServices, EFCore.AuditableExtensions.Common")]
+[assembly: DesignTimeServicesReference("EFCore.AuditExtensions.Common.EfCore.DesignTimeServices, EFCore.AuditExtensions.Common")]
 ```
 
 3. Use the `.UseSqlServerAudit()` extension of the `DbContextOptionsBuilder`, e.g.:
@@ -143,7 +143,7 @@ var host = Host.CreateDefaultBuilder(args)
 The extension is compatible with Entity Framework Core 6. Support for further EFCore release *may*<sup>[1](#guarantees)</sup> come.
 
 Currently, only SQL Server database is supported. This will probably stay that way. To add support for other database
-providers, use the `EFCore.AuditableExtensions.SqlServer` project as your guide.
+providers, use the `EFCore.AuditExtensions.SqlServer` project as your guide.
 
 ## Guarantees
 
