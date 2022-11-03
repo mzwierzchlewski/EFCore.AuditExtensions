@@ -1,4 +1,6 @@
-﻿namespace EFCore.AuditExtensions.Common.Annotations.Table;
+﻿using System.Text.Json.Serialization;
+
+namespace EFCore.AuditExtensions.Common.Annotations.Table;
 
 internal class AuditTableColumn
 {
@@ -10,6 +12,7 @@ internal class AuditTableColumn
 
     public bool AuditedEntityKey { get; }
 
+    [JsonConstructor]
     public AuditTableColumn(AuditColumnType type, string name, bool nullable, bool auditedEntityKey)
     {
         Type = type;

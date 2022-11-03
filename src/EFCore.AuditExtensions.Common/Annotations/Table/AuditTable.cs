@@ -6,9 +6,12 @@ internal class AuditTable
 
     public IReadOnlyCollection<AuditTableColumn> Columns { get; }
 
-    public AuditTable(string name, IReadOnlyCollection<AuditTableColumn> columns)
+    public AuditTableIndex? Index { get; }
+
+    public AuditTable(string name, IReadOnlyCollection<AuditTableColumn> columns, AuditTableIndex? index)
     {
         Columns = columns;
+        Index = index;
         Name = name;
     }
 }

@@ -16,7 +16,7 @@ created and later managed by it through EF Migrations.
 ## Installation (SQL Server)
 
 1. Add `EFCore.AuditExtensions.SqlServer` to your project.
-2. Add the following attribute to your project:
+2. Add the following attribute to your **startup** project:
 
 ```csharp
 [assembly: DesignTimeServicesReference("EFCore.AuditExtensions.Common.EfCore.DesignTimeServices, EFCore.AuditExtensions.Common")]
@@ -72,19 +72,23 @@ modelBuilder.Entity<Product>().IsAudited(options => options.AuditTableName = "Pr
 Given the `ApplicationDbContext` shown above, this will change the _Audit Table_'s name from `Products_Audit`
 to `ProductAudit`.
 
-### Audited Entity Key Selector
+### Audited Entity Key Options
 
 The audited entity **should** have a simple (composing of one property) primary key. By default, that's what the
 extension will use. If no such key is found, it will default to another property. To select a specific property,
-the `AuditedEntityKeySelector` option can be used:
+the `AuditedEntityKeyOptions.KeySelector` option can be used:
 
 ```csharp
 modelBuilder.Entity<Product>().IsAudited(
     options =>
     {
-        options.AuditedEntityKeySelector = p => p.EAN;
+        options.AuditedEntityKeyOptions.KeySelector = p => p.EAN;
     });
 ```
+
+There are two additional options regarding the Audited Entity Key column:
+* `AuditedEntityKeyOptions.Index` - if `true`, an index will be created on the column. This defaults to `true` when no `KeySelector` is specified, and to `false` when it is.
+* `AuditedEntityKeyOptions.IndexName` - name for the index. Defaults to default Entity Framework index name convention (`IX_{TableName}-{ColumnName}`).
 
 ### Trigger Name Format
 

@@ -24,6 +24,12 @@ internal static class EfCoreTableFactory
         {
             var column = auditTableColumn.ToEfCoreColumn(table, tableMapping, auditEntityType, relationalTypeMappingSource);
             table.Columns.Add(column.Name, column);
+
+            if (auditTableColumn.AuditedEntityKey && auditTable.Index != null)
+            {
+                var tableIndex = auditTable.Index.ToEfCoreCustomTableIndex(auditEntityType, table, column);
+                table.Indexes.Add(tableIndex.Name, tableIndex);
+            }
         }
 
         return table;

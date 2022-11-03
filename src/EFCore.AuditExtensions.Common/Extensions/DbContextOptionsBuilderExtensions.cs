@@ -12,8 +12,8 @@ namespace EFCore.AuditExtensions.Common.Extensions;
 
 internal static class DbContextOptionsBuilderExtensions
 {
-    internal static DbContextOptionsBuilder UseAuditExtension<TUserProvider, TUserContextInterceptor, TCreateAuditTriggerSqlGenerator, TDropAuditTriggerSqlGenerator, TMigrationsSqlGenerator>(
-        this DbContextOptionsBuilder optionsBuilder) where TUserProvider : class, IUserProvider where TUserContextInterceptor : BaseUserContextInterceptor where TCreateAuditTriggerSqlGenerator : class, ICreateAuditTriggerSqlGenerator where TDropAuditTriggerSqlGenerator : class, IDropAuditTriggerSqlGenerator where TMigrationsSqlGenerator : MigrationsSqlGenerator
+    internal static DbContextOptionsBuilder UseAuditExtension<TUserProvider, TUserContextInterceptor, TCreateAuditTriggerSqlGenerator, TDropAuditTriggerSqlGenerator, TMigrationsSqlGenerator>(this DbContextOptionsBuilder optionsBuilder)
+        where TUserProvider : class, IUserProvider where TUserContextInterceptor : BaseUserContextInterceptor where TCreateAuditTriggerSqlGenerator : class, ICreateAuditTriggerSqlGenerator where TDropAuditTriggerSqlGenerator : class, IDropAuditTriggerSqlGenerator where TMigrationsSqlGenerator : MigrationsSqlGenerator
     {
         ((IDbContextOptionsBuilderInfrastructure)optionsBuilder)
             .AddOrUpdateExtension(
@@ -27,8 +27,8 @@ internal static class DbContextOptionsBuilderExtensions
         return optionsBuilder.UseAuditExtension<TMigrationsSqlGenerator>();
     }
 
-    internal static DbContextOptionsBuilder UseAuditExtension<TCreateAuditTriggerSqlGenerator, TDropAuditTriggerSqlGenerator, TMigrationsSqlGenerator>(
-        this DbContextOptionsBuilder optionsBuilder) where TCreateAuditTriggerSqlGenerator : class, ICreateAuditTriggerSqlGenerator where TDropAuditTriggerSqlGenerator : class, IDropAuditTriggerSqlGenerator where TMigrationsSqlGenerator : MigrationsSqlGenerator
+    internal static DbContextOptionsBuilder UseAuditExtension<TCreateAuditTriggerSqlGenerator, TDropAuditTriggerSqlGenerator, TMigrationsSqlGenerator>(this DbContextOptionsBuilder optionsBuilder)
+        where TCreateAuditTriggerSqlGenerator : class, ICreateAuditTriggerSqlGenerator where TDropAuditTriggerSqlGenerator : class, IDropAuditTriggerSqlGenerator where TMigrationsSqlGenerator : MigrationsSqlGenerator
     {
         ((IDbContextOptionsBuilderInfrastructure)optionsBuilder)
             .AddOrUpdateExtension(
