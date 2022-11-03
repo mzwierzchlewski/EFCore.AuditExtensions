@@ -4,6 +4,7 @@ using EFCore.AuditExtensions.Common.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Index = Microsoft.EntityFrameworkCore.Metadata.Internal.Index;
 
 namespace EFCore.AuditExtensions.Common.EfCore;
 
@@ -18,18 +19,15 @@ internal static class EfCoreTableIndexFactory
             return new CustomAuditTableIndex(auditTableIndex.Name, table, new[] { column });
         }
 
-        var indexName = auditTableIndex.GetIndexName(auditEntityType);
+        var indexName = auditTableIndex.GetDefaultIndexName(auditEntityType);
         return new CustomAuditTableIndex(indexName, table, new[] { column });
     }
 
-    private static string GetIndexName(this AuditTableIndex auditTableIndex, IReadOnlyEntityType auditEntityType)
+    private static string GetDefaultIndexName(this AuditTableIndex auditTableIndex, EntityType auditEntityType)
     {
-        var model = new Model();
-        var entityType = model.AddEntityType(auditEntityType.Name, auditEntityType.IsOwned(), ConfigurationSource.Explicit) ?? throw new InvalidOperationException("Failed to create audit entity type for audit table index");
-        var property = entityType.AddProperty(auditTableIndex.ColumnName, auditTableIndex.ColumnType.GetClrType(), ConfigurationSource.Explicit, ConfigurationSource.Explicit) ?? throw new InvalidOperationException("Failed to create audit entity property for audit table index");
-        var index = entityType.AddIndex(property, ConfigurationSource.Explicit) ?? throw new InvalidOperationException("Failed to create audit entity index for audit table index");
-        var storeObject = StoreObjectIdentifier.Create(auditEntityType, StoreObjectType.Table) ?? throw new InvalidOperationException("Failed to create store object identifier for audit table index");
-        return index.GetDatabaseName(storeObject) ?? throw new InvalidOperationException("Failed to determine audit table index name");
+        var property = new Property(auditTableIndex.ColumnName, auditTableIndex.ColumnType.GetClrType(), null, null, auditEntityType, ConfigurationSource.Explicit, ConfigurationSource.Explicit);
+        var index = new Index(new[] { property }, auditEntityType, ConfigurationSource.Explicit);
+        return index.GetDatabaseName() ?? throw new InvalidOperationException("Failed to determine audit table index name");
     }
 }
 
