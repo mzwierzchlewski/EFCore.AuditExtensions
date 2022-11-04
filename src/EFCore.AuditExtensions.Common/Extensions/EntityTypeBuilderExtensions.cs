@@ -15,9 +15,9 @@ public static class EntityTypeBuilderExtensions
         var entityType = entityTypeBuilder.GetEntityType();
         var auditOptions = AuditOptionsFactory.GetConfiguredAuditOptions(configureOptions);
         var auditTable = AuditTableFactory.CreateFromEntityType(entityType, auditOptions);
-        var auditTriggers = AuditTriggerFactory.CreateFromAuditTableAndEntityType(auditTable, entityType, auditOptions);
+        var auditTrigger = AuditTriggerFactory.CreateFromAuditTableAndEntityType(auditTable, entityType, auditOptions);
         var auditName = $"{Constants.AnnotationPrefix}:{nameof(T)}";
-        var audit = new Audit(auditName, auditTable, auditTriggers);
+        var audit = new Audit(auditName, auditTable, auditTrigger);
         return entityTypeBuilder.AddAuditAnnotation(audit);
     }
 

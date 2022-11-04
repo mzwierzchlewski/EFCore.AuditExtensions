@@ -1,5 +1,4 @@
-﻿using System.Data;
-using EFCore.AuditExtensions.Common.Annotations.Table;
+﻿using EFCore.AuditExtensions.Common.Annotations.Table;
 using EFCore.AuditExtensions.Common.Extensions;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 
@@ -9,8 +8,6 @@ public class CreateAuditTriggerOperation : MigrationOperation, IDependentMigrati
 {
     public string TriggerName { get; }
 
-    public StatementType OperationType { get; }
-
     public string AuditedEntityTableName { get; }
 
     public string AuditedEntityTableKeyColumnName { get; }
@@ -18,16 +15,21 @@ public class CreateAuditTriggerOperation : MigrationOperation, IDependentMigrati
     public AuditColumnType AuditedEntityTableKeyColumnType { get; }
 
     public string AuditTableName { get; }
+    
+    public int UpdateOptimisationThreshold { get; }
+    
+    public bool NoKeyChanges { get; }
 
-    public Type[] DependsOn { get; } = { typeof(MigrationBuilderExtensions), typeof(StatementType), typeof(AuditColumnType) };
+    public Type[] DependsOn { get; } = { typeof(MigrationBuilderExtensions), typeof(AuditColumnType) };
 
-    public CreateAuditTriggerOperation(string auditedEntityTableName, string auditTableName, string triggerName, StatementType operationType, string auditedEntityTableKeyColumnName, AuditColumnType auditedEntityTableKeyColumnType)
+    public CreateAuditTriggerOperation(string auditedEntityTableName, string auditTableName, string triggerName, string auditedEntityTableKeyColumnName, AuditColumnType auditedEntityTableKeyColumnType, int updateOptimisationThreshold, bool noKeyChanges)
     {
         AuditedEntityTableName = auditedEntityTableName;
         AuditTableName = auditTableName;
         TriggerName = triggerName;
-        OperationType = operationType;
         AuditedEntityTableKeyColumnName = auditedEntityTableKeyColumnName;
         AuditedEntityTableKeyColumnType = auditedEntityTableKeyColumnType;
+        UpdateOptimisationThreshold = updateOptimisationThreshold;
+        NoKeyChanges = noKeyChanges;
     }
 }

@@ -1,5 +1,4 @@
-﻿using System.Data;
-using EFCore.AuditExtensions.Common.Annotations.Table;
+﻿using EFCore.AuditExtensions.Common.Annotations.Table;
 using EFCore.AuditExtensions.Common.Configuration;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -9,50 +8,43 @@ namespace EFCore.AuditExtensions.Common.Annotations.Trigger;
 
 internal static class AuditTriggerFactory
 {
-    private const string DefaultTriggerNameFormat = "{AuditPrefix}_{TableName}_{AuditTableName}_{AuditedEntityTableKeyColumnName}_{OperationType}";
+    private const string DefaultTriggerNameFormat = "{AuditPrefix}_{TableName}_{AuditTableName}";
 
-    private static readonly StatementType[] TriggerOperations =
+    public static AuditTrigger CreateFromAuditTableAndEntityType<T>(AuditTable auditTable, IReadOnlyEntityType entityType, AuditOptions<T> options) where T : class
     {
-        StatementType.Insert, StatementType.Update, StatementType.Delete,
-    };
-
-    public static IReadOnlyCollection<AuditTrigger> CreateFromAuditTableAndEntityType<T>(AuditTable auditTable, IReadOnlyEntityType entityType, AuditOptions<T> options) where T : class
-    {
-        var result = new List<AuditTrigger>();
-
         var tableName = entityType.GetTableName()!;
         var auditTableName = auditTable.Name;
         var auditEntityKeyColumnName = auditTable.Columns.Single(c => c.AuditedEntityKey).Name;
         var auditEntityKeyColumnType = auditTable.Columns.Single(c => c.AuditedEntityKey).Type;
-        foreach (var triggerOperation in TriggerOperations)
-        {
-            var triggerName = GetTriggerName(options, tableName, auditTableName, auditEntityKeyColumnName, triggerOperation);
-            result.Add(CreateAuditTrigger(triggerName, tableName, auditTableName, auditEntityKeyColumnName, auditEntityKeyColumnType, triggerOperation));
-        }
+        var updateOptimisationThreshold = GetUpdateOptimisationThreshold(options.AuditTriggerOptions);
+        var noKeyChanges = GetNoKeyChanges(options.AuditTriggerOptions);
 
-        return result;
+        var triggerName = GetTriggerName(options.AuditTriggerOptions, tableName, auditTableName);
+        return CreateAuditTrigger(triggerName, tableName, auditTableName, auditEntityKeyColumnName, auditEntityKeyColumnType, updateOptimisationThreshold, noKeyChanges);
     }
 
-    private static string GetTriggerName<T>(AuditOptions<T> options, string tableName, string auditTableName, string auditEntityKeyColumnName, StatementType triggerOperation) where T : class
+    private static bool GetNoKeyChanges<T>(AuditTriggerOptions<T> options) where T : class => options.NoKeyChanges ?? false;
+
+    private static int GetUpdateOptimisationThreshold<T>(AuditTriggerOptions<T> options) where T : class => options.UpdateOptimisationThreshold ?? 100;
+
+    private static string GetTriggerName<T>(AuditTriggerOptions<T> options, string tableName, string auditTableName) where T : class
     {
-        var format = options.AuditTriggerNameFormat ?? DefaultTriggerNameFormat;
-        var parameters = GetNameParameters(tableName, auditTableName, auditEntityKeyColumnName, triggerOperation);
+        var format = options.NameFormat ?? DefaultTriggerNameFormat;
+        var parameters = GetNameParameters(tableName, auditTableName);
 
         return Smart.Format(format, parameters);
     }
 
-    private static AuditTriggerNameParameters GetNameParameters(string tableName, string auditTableName, string auditedEntityTableKeyColumnName, StatementType operationType)
+    private static AuditTriggerNameParameters GetNameParameters(string tableName, string auditTableName)
         => new()
         {
             AuditPrefix = Constants.AuditTriggerPrefix,
             TableName = tableName,
             AuditTableName = auditTableName,
-            AuditedEntityTableKeyColumnName = auditedEntityTableKeyColumnName,
-            OperationType = operationType,
         };
 
-    private static AuditTrigger CreateAuditTrigger(string name, string tableName, string auditTableName, string auditedEntityTableKeyColumnName, AuditColumnType auditedEntityTableKeyColumnType, StatementType operationType)
-        => new(name, tableName, auditTableName, auditedEntityTableKeyColumnName, auditedEntityTableKeyColumnType, operationType);
+    private static AuditTrigger CreateAuditTrigger(string name, string tableName, string auditTableName, string auditedEntityTableKeyColumnName, AuditColumnType auditedEntityTableKeyColumnType, int updateOptimisationThreshold, bool noKeyChanges)
+        => new(name, tableName, auditTableName, auditedEntityTableKeyColumnName, auditedEntityTableKeyColumnType, updateOptimisationThreshold, noKeyChanges);
 
     private class AuditTriggerNameParameters
     {
@@ -61,9 +53,5 @@ internal static class AuditTriggerFactory
         public string? TableName { get; init; }
 
         public string? AuditTableName { get; init; }
-
-        public string? AuditedEntityTableKeyColumnName { get; init; }
-
-        public StatementType? OperationType { get; init; }
     }
 }

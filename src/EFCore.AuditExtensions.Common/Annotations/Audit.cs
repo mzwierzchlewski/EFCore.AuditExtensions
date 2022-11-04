@@ -9,12 +9,12 @@ internal class Audit
 
     public AuditTable Table { get; }
 
-    public IReadOnlyCollection<AuditTrigger> Triggers { get; }
+    public AuditTrigger Trigger { get; }
 
-    public Audit(string name, AuditTable table, IReadOnlyCollection<AuditTrigger> triggers)
+    public Audit(string name, AuditTable table, AuditTrigger trigger)
     {
         Name = name;
         Table = table;
-        Triggers = triggers;
+        Trigger = trigger;
     }
 }

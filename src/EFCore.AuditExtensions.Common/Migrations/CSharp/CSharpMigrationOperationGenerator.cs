@@ -1,5 +1,4 @@
-﻿using System.Data;
-using EFCore.AuditExtensions.Common.Annotations.Table;
+﻿using EFCore.AuditExtensions.Common.Annotations.Table;
 using EFCore.AuditExtensions.Common.Migrations.CSharp.Operations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations.Design;
@@ -12,14 +11,15 @@ internal class CSharpMigrationOperationGenerator : Microsoft.EntityFrameworkCore
 {
     private const string BaseCreateAuditTriggerCSharp =
         $@".CreateAuditTrigger(
-        ""{{AuditedEntityTableName}}"",
-        ""{{AuditTableName}}"",
-        ""{{TriggerName}}"",
-        {nameof(StatementType)}.{{OperationType}},
-        ""{{AuditedEntityTableKeyColumnName}}"",
-        {nameof(AuditColumnType)}.{{AuditedEntityTableKeyColumnType}})";
+        auditedEntityTableName: ""{{AuditedEntityTableName}}"",
+        auditTableName: ""{{AuditTableName}}"",
+        triggerName: ""{{TriggerName}}"",
+        auditedEntityTableKeyColumnName: ""{{AuditedEntityTableKeyColumnName}}"",
+        auditedEntityTableKeyColumnType: {nameof(AuditColumnType)}.{{AuditedEntityTableKeyColumnType}},
+        updateOptimisationThreshold: {{UpdateOptimisationThreshold}},
+        noKeyChanges: {{NoKeyChanges.ToString.ToLower}})";
 
-    private const string BaseDropAuditTriggerCSharp = @".DropAuditTrigger(""{TriggerName}"")";
+    private const string BaseDropAuditTriggerCSharp = @".DropAuditTrigger(triggerName: ""{TriggerName}"")";
 
     public CSharpMigrationOperationGenerator(CSharpMigrationOperationGeneratorDependencies dependencies) : base(dependencies)
     { }

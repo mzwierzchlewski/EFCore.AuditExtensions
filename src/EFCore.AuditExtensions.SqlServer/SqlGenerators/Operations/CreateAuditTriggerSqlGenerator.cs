@@ -1,5 +1,4 @@
-﻿using System.Data;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 using EFCore.AuditExtensions.Common;
 using EFCore.AuditExtensions.Common.Extensions;
 using EFCore.AuditExtensions.Common.Migrations.CSharp.Operations;
@@ -14,44 +13,59 @@ internal class CreateAuditTriggerSqlGenerator : ICreateAuditTriggerSqlGenerator
 {
     private const string BaseSql = @"
     CREATE TRIGGER [{TriggerName}] ON [{AuditedEntityTableName}]
-    FOR {OperationType} AS
+    FOR INSERT, UPDATE, DELETE AS
     BEGIN
         IF @@ROWCOUNT = 0 RETURN;
         SET NOCOUNT ON;
-        IF {ExistsSql}
+        DECLARE @user varchar(255);
+        SET @user = COALESCE(CAST(SESSION_CONTEXT(N'user') AS VARCHAR(255)), CONCAT(SUSER_NAME(), ' [db]'));
+
+        -- Handle UPDATE statements
+        IF EXISTS(SELECT * FROM Inserted) AND EXISTS(SELECT * FROM Deleted)
         BEGIN
-            DECLARE @user varchar(255);
-            SET @user = COALESCE(CAST(SESSION_CONTEXT(N'user') AS VARCHAR(255)), CONCAT(SUSER_NAME(), ' [db]'));
-
-            DECLARE @{KeyColumnName} {KeyColumnType};
-            DECLARE @C CURSOR;
-
-            SET @C = CURSOR LOCAL FAST_FORWARD FOR 
-            SELECT [{KeyColumnName}] FROM {CursorSource};
-
-            OPEN @C;
-            FETCH NEXT FROM @C INTO @{KeyColumnName};
-                
-            WHILE @@FETCH_STATUS = 0
+            IF @@ROWCOUNT < {UpdateOptimisationThreshold}
             BEGIN
-                INSERT INTO [{AuditTableName}] (
-                    [{KeyColumnName}],
-                    [{OldDataColumnName}],
-                    [{NewDataColumnName}],
-                    [{OperationTypeColumnName}],
-                    [{UserColumnName}],
-                    [{TimestampColumnName}]
-                )
-                VALUES(
-                    @{KeyColumnName},
-                    {OldDataSql},
-                    {NewDataSql},
-                    '{OperationType}',
-                    @user,
-                    GETUTCDATE()
-                );
-                FETCH NEXT FROM @C INTO @{KeyColumnName};
+                INSERT INTO [{AuditTableName}] ([{KeyColumnName}], [{OldDataColumnName}], [{NewDataColumnName}], [{OperationTypeColumnName}], [{UserColumnName}], [{TimestampColumnName}])
+                SELECT {InsertKeyColumnSql}, (SELECT D.* FOR JSON PATH, WITHOUT_ARRAY_WRAPPER) AS [{OldDataColumnName}], (SELECT I.* FOR JSON PATH, WITHOUT_ARRAY_WRAPPER) AS [{NewDataColumnName}], 'UPDATE', @user, GETUTCDATE()
+                FROM Deleted D {JoinKeyColumnSql} Inserted I ON D.[{KeyColumnName}] = I.[{KeyColumnName}];
             END;
+            ELSE
+            BEGIN
+                -- Create temporal tables with inserted and deleted data so that key column can be indexed
+                -- and joins will be less painful
+                DECLARE @{AuditTableName}_Deleted TABLE (
+                    [{KeyColumnName}] {KeyColumnType} PRIMARY KEY CLUSTERED,
+                    [{OldDataColumnName}] NVARCHAR(MAX));
+                INSERT INTO @{AuditTableName}_Deleted
+                SELECT [{KeyColumnName}], (SELECT D.* FOR JSON PATH, WITHOUT_ARRAY_WRAPPER) AS [{OldDataColumnName}]
+                FROM Deleted D;
+
+                DECLARE @{AuditTableName}_Inserted TABLE  (
+                    [{KeyColumnName}] {KeyColumnType} PRIMARY KEY CLUSTERED,
+                    [{NewDataColumnName}] NVARCHAR(MAX));
+                INSERT INTO @{AuditTableName}_Inserted
+                SELECT [{KeyColumnName}], (SELECT I.* FOR JSON PATH, WITHOUT_ARRAY_WRAPPER) AS [{NewDataColumnName}]
+                FROM Inserted I;
+
+                {CoalesceFullJoinComment}
+                INSERT INTO [{AuditTableName}] ([{KeyColumnName}], [{OldDataColumnName}], [{NewDataColumnName}], [{OperationTypeColumnName}], [{UserColumnName}], [{TimestampColumnName}])
+                SELECT {InsertKeyColumnSql}, D.[{OldDataColumnName}], I.[{NewDataColumnName}], 'UPDATE', @user, GETUTCDATE()
+                FROM @{AuditTableName}_Deleted D {JoinKeyColumnSql} @{AuditTableName}_Inserted I ON D.[{KeyColumnName}] = I.[{KeyColumnName}];
+            END;
+        END;
+        -- Handle INSERT statements
+        ELSE IF EXISTS(SELECT * FROM Inserted)
+        BEGIN
+            INSERT INTO [{AuditTableName}] ([{KeyColumnName}], [{OldDataColumnName}], [{NewDataColumnName}], [{OperationTypeColumnName}], [{UserColumnName}], [{TimestampColumnName}])
+            SELECT [{KeyColumnName}], NULL, (SELECT I.* FOR JSON PATH, WITHOUT_ARRAY_WRAPPER), 'INSERT', @user, GETUTCDATE()
+            FROM Inserted I;
+        END;
+        -- Handle DELETE statements
+        ELSE IF EXISTS(SELECT * FROM Deleted)
+        BEGIN
+            INSERT INTO [{AuditTableName}] ([{KeyColumnName}], [{OldDataColumnName}], [{NewDataColumnName}], [{OperationTypeColumnName}], [{UserColumnName}], [{TimestampColumnName}])
+            SELECT [{KeyColumnName}], (SELECT D.* FOR JSON PATH, WITHOUT_ARRAY_WRAPPER), NULL, 'DELETE', @user, GETUTCDATE()
+            FROM Deleted D;
         END;
     END;";
 
@@ -81,35 +95,24 @@ internal class CreateAuditTriggerSqlGenerator : ICreateAuditTriggerSqlGenerator
 
     private static CreateAuditTriggerSqlParameters GetSqlParameters(CreateAuditTriggerOperation operation, IRelationalTypeMappingSource typeMappingSource)
     {
-        string GetExistsSql(StatementType statementType) => statementType switch
+        string GetInsertKeyColumnSql(bool noKeyChanges) => noKeyChanges switch
         {
-            StatementType.Insert => "EXISTS(SELECT * FROM Inserted)",
-            StatementType.Update => "EXISTS(SELECT * FROM Inserted) AND EXISTS(SELECT * FROM Deleted)",
-            StatementType.Delete => "EXISTS(SELECT * FROM Deleted)",
-            _                    => throw new ArgumentOutOfRangeException(nameof(statementType), statementType, "Value not supported"),
+            true => "D.[{KeyColumnName}]",
+            false => "COALESCE(D.[{KeyColumnName}], I.[{KeyColumnName}])",
         };
 
-        string GetCursorSource(StatementType statementType) => statementType switch
+        string GetJoinKeyColumnSql(bool noKeyChanges) => noKeyChanges switch
         {
-            StatementType.Insert or StatementType.Update => "Inserted",
-            StatementType.Delete                         => "Deleted",
-            _                                            => throw new ArgumentOutOfRangeException(nameof(statementType), statementType, "Value not supported"),
+            true  => "INNER JOIN",
+            false => "FULL OUTER JOIN",
         };
 
-        string GetOldDataSql(StatementType statementType) => statementType switch
+        string GetCoalesceFullJoinComment(bool noKeyChanges) => noKeyChanges switch
         {
-            StatementType.Insert                         => "null",
-            StatementType.Update or StatementType.Delete => "(SELECT * FROM Deleted WHERE [{KeyColumnName}] = @{KeyColumnName} FOR JSON PATH, WITHOUT_ARRAY_WRAPPER)",
-            _                                            => throw new ArgumentOutOfRangeException(nameof(statementType), statementType, "Value not supported"),
+            true  => string.Empty,
+            false => "-- COALESCE and FULL OUTER JOIN prevent loss of data when value of the primary key was changed",
         };
-
-        string GetNewDataSql(StatementType statementType) => statementType switch
-        {
-            StatementType.Insert or StatementType.Update => "(SELECT * FROM Inserted WHERE [{KeyColumnName}] = @{KeyColumnName} FOR JSON PATH, WITHOUT_ARRAY_WRAPPER)",
-            StatementType.Delete                         => "null",
-            _                                            => throw new ArgumentOutOfRangeException(nameof(statementType), statementType, "Value not supported"),
-        };
-
+        
         var keyColumnTypeMapping = typeMappingSource.FindMapping(operation.AuditedEntityTableKeyColumnType.GetClrType()) ?? throw new ArgumentException("Column type is not supported");
 
         return new CreateAuditTriggerSqlParameters
@@ -117,13 +120,12 @@ internal class CreateAuditTriggerSqlGenerator : ICreateAuditTriggerSqlGenerator
             TriggerName = operation.TriggerName,
             AuditedEntityTableName = operation.AuditedEntityTableName,
             AuditTableName = operation.AuditTableName,
-            OperationType = operation.OperationType.ToString().ToUpper(),
             KeyColumnName = operation.AuditedEntityTableKeyColumnName,
             KeyColumnType = keyColumnTypeMapping.StoreType,
-            OldDataSql = GetOldDataSql(operation.OperationType),
-            NewDataSql = GetNewDataSql(operation.OperationType),
-            ExistsSql = GetExistsSql(operation.OperationType),
-            CursorSource = GetCursorSource(operation.OperationType),
+            UpdateOptimisationThreshold = operation.UpdateOptimisationThreshold,
+            InsertKeyColumnSql = GetInsertKeyColumnSql(operation.NoKeyChanges),
+            JoinKeyColumnSql = GetJoinKeyColumnSql(operation.NoKeyChanges),
+            CoalesceFullJoinComment = GetCoalesceFullJoinComment(operation.NoKeyChanges),
             OldDataColumnName = Constants.AuditTableColumnNames.OldData,
             NewDataColumnName = Constants.AuditTableColumnNames.NewData,
             OperationTypeColumnName = Constants.AuditTableColumnNames.OperationType,
@@ -138,17 +140,7 @@ internal class CreateAuditTriggerSqlGenerator : ICreateAuditTriggerSqlGenerator
 
         public string? AuditedEntityTableName { get; init; }
 
-        public string? OperationType { get; init; }
-
         public string? AuditTableName { get; init; }
-
-        public string? CursorSource { get; init; }
-
-        public string? OldDataSql { get; init; }
-
-        public string? NewDataSql { get; init; }
-
-        public string? ExistsSql { get; init; }
 
         public string? KeyColumnName { get; init; }
 
@@ -163,5 +155,13 @@ internal class CreateAuditTriggerSqlGenerator : ICreateAuditTriggerSqlGenerator
         public string? UserColumnName { get; init; }
 
         public string? TimestampColumnName { get; init; }
+        
+        public int? UpdateOptimisationThreshold { get; init; }
+        
+        public string? InsertKeyColumnSql { get; init; }
+        
+        public string? JoinKeyColumnSql { get; init; }
+        
+        public string? CoalesceFullJoinComment { get; init; }
     }
 }

@@ -73,7 +73,7 @@ public class MigrationsModelDiffer : Microsoft.EntityFrameworkCore.Migrations.In
             yield return operation;
         }
 
-        var triggerOperations = Diff(source.Audit.Triggers, target.Audit.Triggers, diffContext, (_, _, _) => true);
+        var triggerOperations = Diff(source.Audit.Trigger, target.Audit.Trigger, diffContext);
         foreach (var operation in triggerOperations)
         {
             yield return operation;
@@ -87,9 +87,8 @@ public class MigrationsModelDiffer : Microsoft.EntityFrameworkCore.Migrations.In
         {
             yield return operation;
         }
-
-        foreach (var trigger in target.Audit.Triggers)
-        foreach (var operation in Add(trigger, diffContext))
+        
+        foreach (var operation in Add(target.Audit.Trigger, diffContext))
         {
             yield return operation;
         }
@@ -97,8 +96,7 @@ public class MigrationsModelDiffer : Microsoft.EntityFrameworkCore.Migrations.In
 
     private IEnumerable<MigrationOperation> Remove(AuditedEntityType source, DiffContext diffContext)
     {
-        foreach (var trigger in source.Audit.Triggers)
-        foreach (var operation in Remove(trigger, diffContext))
+        foreach (var operation in Remove(source.Audit.Trigger, diffContext))
         {
             yield return operation;
         }
@@ -115,13 +113,6 @@ public class MigrationsModelDiffer : Microsoft.EntityFrameworkCore.Migrations.In
     #endregion
 
     #region Diff - AuditTrigger
-
-    private IEnumerable<MigrationOperation> Diff(
-        IEnumerable<AuditTrigger> source,
-        IEnumerable<AuditTrigger> target,
-        DiffContext diffContext,
-        Func<AuditTrigger, AuditTrigger, DiffContext, bool> comparer)
-        => DiffCollection(source, target, diffContext, Diff, Add, Remove, comparer);
 
     private static IEnumerable<MigrationOperation> Diff(AuditTrigger source, AuditTrigger target, DiffContext diffContext)
     {
@@ -149,9 +140,10 @@ public class MigrationsModelDiffer : Microsoft.EntityFrameworkCore.Migrations.In
             target.TableName,
             target.AuditTableName,
             target.Name,
-            target.OperationType,
             target.AuditedEntityTableKeyColumnName,
-            target.AuditedEntityTableKeyColumnType);
+            target.AuditedEntityTableKeyColumnType,
+            target.UpdateOptimisationThreshold,
+            target.NoKeyChanges);
     }
 
     private static IEnumerable<MigrationOperation> Remove(AuditTrigger source, DiffContext diffContext)

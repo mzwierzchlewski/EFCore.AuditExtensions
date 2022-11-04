@@ -6,8 +6,7 @@ public class AuditOptions<TEntity> where TEntity : class
 {
     public string? AuditTableName { get; set; }
 
-    public string? AuditTriggerNameFormat { get; set; }
-
+    public AuditTriggerOptions<TEntity> AuditTriggerOptions { get; } = new();
     public AuditKeyOptions<TEntity> AuditedEntityKeyOptions { get; } = new();
 }
 
@@ -18,4 +17,13 @@ public class AuditKeyOptions<TEntity> where TEntity : class
     public bool? Index { get; set; }
 
     public string? IndexName { get; set; }
+}
+
+public class AuditTriggerOptions<TEntity> where TEntity : class
+{
+    public string? NameFormat { get; set; }
+    
+    public int? UpdateOptimisationThreshold { get; set; }
+    
+    public bool? NoKeyChanges { get; set; }
 }
