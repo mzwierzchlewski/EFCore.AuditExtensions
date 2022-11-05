@@ -1,6 +1,4 @@
-﻿using System.Text.Json.Serialization;
-
-namespace EFCore.AuditExtensions.Common.Annotations.Table;
+﻿namespace EFCore.AuditExtensions.Common.Annotations.Table;
 
 internal class AuditTableColumn
 {
@@ -11,13 +9,15 @@ internal class AuditTableColumn
     public bool Nullable { get; }
 
     public bool AuditedEntityKey { get; }
-
-    [JsonConstructor]
-    public AuditTableColumn(AuditColumnType type, string name, bool nullable, bool auditedEntityKey)
+    
+    public int? MaxLength { get; }
+    
+    public AuditTableColumn(AuditColumnType type, string name, bool nullable, bool auditedEntityKey, int? maxLength = null)
     {
         Type = type;
         Name = name;
         Nullable = nullable;
         AuditedEntityKey = auditedEntityKey;
+        MaxLength = maxLength;
     }
 }

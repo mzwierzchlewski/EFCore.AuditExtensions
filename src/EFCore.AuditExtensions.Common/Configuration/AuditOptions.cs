@@ -5,6 +5,8 @@ namespace EFCore.AuditExtensions.Common.Configuration;
 public class AuditOptions<TEntity> where TEntity : class
 {
     public string? AuditTableName { get; set; }
+    
+    public int? DataColumnsMaxLength { get; set; }
 
     public AuditTriggerOptions<TEntity> AuditTriggerOptions { get; } = new();
     public AuditKeyOptions<TEntity> AuditedEntityKeyOptions { get; } = new();

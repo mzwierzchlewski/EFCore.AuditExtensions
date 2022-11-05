@@ -16,12 +16,12 @@ internal static class AuditTableFactory
         return new AuditTable(name, columns, index);
     }
 
-    private static AuditTableColumn[] GetDefaultColumns() => new[]
+    private static AuditTableColumn[] GetDefaultColumns(int? dataColumnsMaxLength) => new[]
     {
-        new AuditTableColumn(AuditColumnType.Text, Constants.AuditTableColumnNames.OldData, true, false),
-        new AuditTableColumn(AuditColumnType.Text, Constants.AuditTableColumnNames.NewData, true, false),
-        new AuditTableColumn(AuditColumnType.Text, Constants.AuditTableColumnNames.OperationType, false, false),
-        new AuditTableColumn(AuditColumnType.Text, Constants.AuditTableColumnNames.User, false, false),
+        new AuditTableColumn(AuditColumnType.Text, Constants.AuditTableColumnNames.OldData, true, false, dataColumnsMaxLength),
+        new AuditTableColumn(AuditColumnType.Text, Constants.AuditTableColumnNames.NewData, true, false, dataColumnsMaxLength),
+        new AuditTableColumn(AuditColumnType.Text, Constants.AuditTableColumnNames.OperationType, false, false, Constants.AuditTableColumnMaxLengths.OperationType),
+        new AuditTableColumn(AuditColumnType.Text, Constants.AuditTableColumnNames.User, false, false, Constants.AuditTableColumnMaxLengths.User),
         new AuditTableColumn(AuditColumnType.DateTime, Constants.AuditTableColumnNames.Timestamp, false, false),
     };
 
@@ -56,7 +56,7 @@ internal static class AuditTableFactory
         {
             GetKeyColumn(entityType, options),
         };
-        columns.AddRange(GetDefaultColumns());
+        columns.AddRange(GetDefaultColumns(options.DataColumnsMaxLength));
 
         return columns.ToArray();
     }

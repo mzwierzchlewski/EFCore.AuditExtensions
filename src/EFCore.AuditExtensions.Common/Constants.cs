@@ -16,4 +16,10 @@ internal static class Constants
         public static string Timestamp = nameof(Timestamp);
         public static string User = nameof(User);
     }
+    
+    public static class AuditTableColumnMaxLengths
+    {
+        public static int OperationType = 6;
+        public static int User = 255;
+    }
 }

@@ -13,7 +13,8 @@ internal static class EfCoreColumnFactory
     public static Column ToEfCoreColumn(this AuditTableColumn auditTableColumn, Table table, TableMapping tableMapping, EntityType entityType, IRelationalTypeMappingSource relationalTypeMappingSource)
     {
         var columnClrType = auditTableColumn.Type.GetClrType();
-        var columnTypeMapping = relationalTypeMappingSource.FindMapping(columnClrType) ?? throw new ArgumentException("Column type is not supported");
+        var columnMaxLength = auditTableColumn.MaxLength;
+        var columnTypeMapping = relationalTypeMappingSource.FindMapping(type: columnClrType, storeTypeName: null, size: columnMaxLength) ?? throw new ArgumentException("Column type is not supported");
         var tableColumn = new Column(auditTableColumn.Name, columnTypeMapping.StoreType, table)
         {
             IsNullable = auditTableColumn.Nullable,
