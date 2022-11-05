@@ -1,4 +1,4 @@
-﻿using EFCore.AuditExtensions.Common.Annotations.Table;
+﻿using EFCore.AuditExtensions.Common.SharedModels;
 
 namespace EFCore.AuditExtensions.Common.Extensions;
 

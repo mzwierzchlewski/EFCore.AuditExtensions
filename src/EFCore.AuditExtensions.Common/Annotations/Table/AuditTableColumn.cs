@@ -1,4 +1,6 @@
-﻿namespace EFCore.AuditExtensions.Common.Annotations.Table;
+﻿using EFCore.AuditExtensions.Common.SharedModels;
+
+namespace EFCore.AuditExtensions.Common.Annotations.Table;
 
 internal class AuditTableColumn
 {

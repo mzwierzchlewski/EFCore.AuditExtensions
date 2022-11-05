@@ -1,22 +1,19 @@
 ﻿using System.Linq.Expressions;
 using System.Reflection;
+using EFCore.AuditExtensions.Common.SharedModels;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace EFCore.AuditExtensions.Common.Extensions;
 
 internal static class ExpressionExtensions
 {
-    public static (string name, Type type) GetAccessedPropertyNameAndType<T>(this Expression<Func<T, object?>> expression)
+    public static IReadOnlyCollection<AuditedEntityKeyProperty> GetKeyProperties<T>(this Expression<Func<T, object?>> expression , IReadOnlyEntityType entityType)
     {
-        var memberInfos = expression.GetMemberAccessList();
-        if (memberInfos.Count != 1 && memberInfos[0].MemberType != MemberTypes.Property)
-        {
-            return (string.Empty, typeof(object));
-        }
-
-        var name = memberInfos[0].Name;
-        var type = ((PropertyInfo)memberInfos[0]).PropertyType;
-
-        return (name, type);
+        var memberInfos = expression.GetMemberAccessList().Where(m => m.MemberType == MemberTypes.Property);
+        
+        var storeObject = StoreObjectIdentifier.Table(entityType.GetTableName()!);
+        return memberInfos.Select(entityType.FindProperty).Select(property => new AuditedEntityKeyProperty(property!.GetColumnName(storeObject)!, property!.ClrType.GetAuditColumnType(), property.GetMaxLength())).ToArray();
     }
 }

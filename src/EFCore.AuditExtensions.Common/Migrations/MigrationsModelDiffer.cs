@@ -140,8 +140,7 @@ public class MigrationsModelDiffer : Microsoft.EntityFrameworkCore.Migrations.In
             target.TableName,
             target.AuditTableName,
             target.Name,
-            target.AuditedEntityTableKeyColumnName,
-            target.AuditedEntityTableKeyColumnType,
+            target.KeyProperties,
             target.UpdateOptimisationThreshold,
             target.NoKeyChanges);
     }

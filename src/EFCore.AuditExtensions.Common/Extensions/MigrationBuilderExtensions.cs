@@ -1,5 +1,5 @@
-﻿using EFCore.AuditExtensions.Common.Annotations.Table;
-using EFCore.AuditExtensions.Common.Migrations.CSharp.Operations;
+﻿using EFCore.AuditExtensions.Common.Migrations.CSharp.Operations;
+using EFCore.AuditExtensions.Common.SharedModels;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations.Builders;
 
@@ -12,12 +12,11 @@ public static class MigrationBuilderExtensions
         string auditedEntityTableName,
         string auditTableName,
         string triggerName,
-        string auditedEntityTableKeyColumnName,
-        AuditColumnType auditedEntityTableKeyColumnType,
+        AuditedEntityKeyProperty[] auditedEntityTableKey,
         int updateOptimisationThreshold,
         bool noKeyChanges)
     {
-        var operation = new CreateAuditTriggerOperation(auditedEntityTableName, auditTableName, triggerName, auditedEntityTableKeyColumnName, auditedEntityTableKeyColumnType, updateOptimisationThreshold, noKeyChanges);
+        var operation = new CreateAuditTriggerOperation(auditedEntityTableName, auditTableName, triggerName, auditedEntityTableKey, updateOptimisationThreshold, noKeyChanges);
         migrationBuilder.Operations.Add(operation);
 
         return new OperationBuilder<CreateAuditTriggerOperation>(operation);

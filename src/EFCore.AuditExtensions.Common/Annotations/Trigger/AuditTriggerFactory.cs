@@ -1,5 +1,6 @@
 ﻿using EFCore.AuditExtensions.Common.Annotations.Table;
 using EFCore.AuditExtensions.Common.Configuration;
+using EFCore.AuditExtensions.Common.SharedModels;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using SmartFormat;
@@ -14,14 +15,16 @@ internal static class AuditTriggerFactory
     {
         var tableName = entityType.GetTableName()!;
         var auditTableName = auditTable.Name;
-        var auditEntityKeyColumnName = auditTable.Columns.Single(c => c.AuditedEntityKey).Name;
-        var auditEntityKeyColumnType = auditTable.Columns.Single(c => c.AuditedEntityKey).Type;
+        var auditEntityKeyProperties = GetKeyProperties(auditTable);
         var updateOptimisationThreshold = GetUpdateOptimisationThreshold(options.AuditTriggerOptions);
         var noKeyChanges = GetNoKeyChanges(options.AuditTriggerOptions);
 
         var triggerName = GetTriggerName(options.AuditTriggerOptions, tableName, auditTableName);
-        return CreateAuditTrigger(triggerName, tableName, auditTableName, auditEntityKeyColumnName, auditEntityKeyColumnType, updateOptimisationThreshold, noKeyChanges);
+        return new AuditTrigger(triggerName, tableName, auditTableName, auditEntityKeyProperties, updateOptimisationThreshold, noKeyChanges);
     }
+
+    private static AuditedEntityKeyProperty[] GetKeyProperties(AuditTable auditTable) 
+        => auditTable.Columns.Where(c => c.AuditedEntityKey).Select(c => new AuditedEntityKeyProperty(c.Name, c.Type, c.MaxLength)).ToArray();
 
     private static bool GetNoKeyChanges<T>(AuditTriggerOptions<T> options) where T : class => options.NoKeyChanges ?? false;
 
@@ -42,9 +45,6 @@ internal static class AuditTriggerFactory
             TableName = tableName,
             AuditTableName = auditTableName,
         };
-
-    private static AuditTrigger CreateAuditTrigger(string name, string tableName, string auditTableName, string auditedEntityTableKeyColumnName, AuditColumnType auditedEntityTableKeyColumnType, int updateOptimisationThreshold, bool noKeyChanges)
-        => new(name, tableName, auditTableName, auditedEntityTableKeyColumnName, auditedEntityTableKeyColumnType, updateOptimisationThreshold, noKeyChanges);
 
     private class AuditTriggerNameParameters
     {

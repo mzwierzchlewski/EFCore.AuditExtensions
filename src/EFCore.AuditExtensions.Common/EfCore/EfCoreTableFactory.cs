@@ -20,6 +20,7 @@ internal static class EfCoreTableFactory
         };
         table.EntityTypeMappings.Add(tableMapping);
 
+        var indexColumns = new List<Column>(auditTable.Columns.Count(c => c.AuditedEntityKey));
         foreach (var auditTableColumn in auditTable.Columns)
         {
             var column = auditTableColumn.ToEfCoreColumn(table, tableMapping, auditEntityType, relationalTypeMappingSource);
@@ -27,9 +28,19 @@ internal static class EfCoreTableFactory
 
             if (auditTableColumn.AuditedEntityKey && auditTable.Index != null)
             {
-                var tableIndex = auditTable.Index.ToEfCoreCustomTableIndex(auditEntityType, table, column);
-                table.Indexes.Add(tableIndex.Name, tableIndex);
+                indexColumns.Add(column);
             }
+        }
+
+        if (auditTable.Index != null)
+        {
+            if (!indexColumns.Any())
+            {
+                throw new InvalidOperationException("Cannot define audit table index because no key columns were found");
+            }
+            
+            var tableIndex = auditTable.Index.ToEfCoreCustomTableIndex(auditEntityType, table, indexColumns);
+            table.Indexes.Add(tableIndex.Name, tableIndex);
         }
 
         return table;

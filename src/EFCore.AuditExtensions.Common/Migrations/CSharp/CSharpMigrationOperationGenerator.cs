@@ -1,5 +1,5 @@
-﻿using EFCore.AuditExtensions.Common.Annotations.Table;
-using EFCore.AuditExtensions.Common.Migrations.CSharp.Operations;
+﻿using EFCore.AuditExtensions.Common.Migrations.CSharp.Operations;
+using EFCore.AuditExtensions.Common.SharedModels;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations.Design;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
@@ -10,14 +10,16 @@ namespace EFCore.AuditExtensions.Common.Migrations.CSharp;
 internal class CSharpMigrationOperationGenerator : Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationOperationGenerator
 {
     private const string BaseCreateAuditTriggerCSharp =
-        $@".CreateAuditTrigger(
-        auditedEntityTableName: ""{{AuditedEntityTableName}}"",
-        auditTableName: ""{{AuditTableName}}"",
-        triggerName: ""{{TriggerName}}"",
-        auditedEntityTableKeyColumnName: ""{{AuditedEntityTableKeyColumnName}}"",
-        auditedEntityTableKeyColumnType: {nameof(AuditColumnType)}.{{AuditedEntityTableKeyColumnType}},
-        updateOptimisationThreshold: {{UpdateOptimisationThreshold}},
-        noKeyChanges: {{NoKeyChanges.ToString.ToLower}})";
+$@".CreateAuditTrigger(
+    auditedEntityTableName: ""{{AuditedEntityTableName}}"",
+    auditTableName: ""{{AuditTableName}}"",
+    triggerName: ""{{TriggerName}}"",
+    auditedEntityTableKey: new {nameof(AuditedEntityKeyProperty)}[]
+    \{{
+{{AuditedEntityTableKey:list:        new(columnName: ""{{ColumnName}}"", columnType: {nameof(AuditColumnType)}.{{ColumnType}}{{MaxLength:isnull:|, maxLength: {{}}}})|,\n}}
+    \}},
+    updateOptimisationThreshold: {{UpdateOptimisationThreshold}},
+    noKeyChanges: {{NoKeyChanges.ToString.ToLower}})";
 
     private const string BaseDropAuditTriggerCSharp = @".DropAuditTrigger(triggerName: ""{TriggerName}"")";
 

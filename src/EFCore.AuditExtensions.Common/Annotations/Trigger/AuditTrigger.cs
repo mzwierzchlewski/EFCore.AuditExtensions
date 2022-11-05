@@ -1,4 +1,4 @@
-﻿using EFCore.AuditExtensions.Common.Annotations.Table;
+﻿using EFCore.AuditExtensions.Common.SharedModels;
 
 namespace EFCore.AuditExtensions.Common.Annotations.Trigger;
 
@@ -9,29 +9,33 @@ internal class AuditTrigger
     public string TableName { get; }
 
     public string AuditTableName { get; }
-
-    public string AuditedEntityTableKeyColumnName { get; }
-
-    public AuditColumnType AuditedEntityTableKeyColumnType { get; }
+    
+    public AuditedEntityKeyProperty[] KeyProperties { get; }
     
     public int UpdateOptimisationThreshold { get; }
     
     public bool NoKeyChanges { get; }
 
-    public AuditTrigger(string name, string tableName, string auditTableName, string auditedEntityTableKeyColumnName, AuditColumnType auditedEntityTableKeyColumnType, int updateOptimisationThreshold, bool noKeyChanges)
+    public AuditTrigger(string name, string tableName, string auditTableName, AuditedEntityKeyProperty[] keyProperties, int updateOptimisationThreshold, bool noKeyChanges)
     {
         Name = name;
         TableName = tableName;
         AuditTableName = auditTableName;
-        AuditedEntityTableKeyColumnName = auditedEntityTableKeyColumnName;
-        AuditedEntityTableKeyColumnType = auditedEntityTableKeyColumnType;
+        KeyProperties = keyProperties;
         UpdateOptimisationThreshold = updateOptimisationThreshold;
         NoKeyChanges = noKeyChanges;
     }
 
     #region Comparers
 
-    protected bool Equals(AuditTrigger other) => Name == other.Name && TableName == other.TableName && AuditTableName == other.AuditTableName && AuditedEntityTableKeyColumnName == other.AuditedEntityTableKeyColumnName && AuditedEntityTableKeyColumnType == other.AuditedEntityTableKeyColumnType && UpdateOptimisationThreshold == other.UpdateOptimisationThreshold && NoKeyChanges == other.NoKeyChanges;
+    protected bool Equals(AuditTrigger other)
+        => Name == other.Name
+           && TableName == other.TableName
+           && AuditTableName == other.AuditTableName
+           && UpdateOptimisationThreshold == other.UpdateOptimisationThreshold
+           && NoKeyChanges == other.NoKeyChanges
+           && KeyProperties.Length == other.KeyProperties.Length
+           && KeyProperties.All(p => other.KeyProperties.Any(op => op.ColumnName == p.ColumnName && op.ColumnType == p.ColumnType));
 
     public override bool Equals(object? obj)
     {
@@ -53,7 +57,7 @@ internal class AuditTrigger
         return Equals((AuditTrigger)obj);
     }
 
-    public override int GetHashCode() => HashCode.Combine(Name, TableName, AuditTableName, AuditedEntityTableKeyColumnName, (int)AuditedEntityTableKeyColumnType, UpdateOptimisationThreshold, NoKeyChanges);
+    public override int GetHashCode() => HashCode.Combine(Name, TableName, AuditTableName, KeyProperties, UpdateOptimisationThreshold, NoKeyChanges);
 
     public static bool operator ==(AuditTrigger? left, AuditTrigger? right) => Equals(left, right);
 

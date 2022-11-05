@@ -1,17 +1,23 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata;
+﻿using EFCore.AuditExtensions.Common.SharedModels;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace EFCore.AuditExtensions.Common.Extensions;
 
 internal static class ReadOnlyEntityTypeExtensions
 {
-    public static (string name, Type type) GetSimpleKeyNameAndType(this IReadOnlyEntityType readOnlyEntityType)
+    public static IReadOnlyCollection<AuditedEntityKeyProperty> GetKeyProperties(this IReadOnlyEntityType readOnlyEntityType)
     {
-        var key = readOnlyEntityType.GetKeys().OrderByDescending(k => k.IsPrimaryKey()).FirstOrDefault(k => k.Properties.Count == 1);
+        var key = readOnlyEntityType.GetKeys().OrderBy(k => k.IsPrimaryKey()).ThenBy(k => k.Properties.Count).FirstOrDefault();
         if (key == null)
         {
-            return (string.Empty, typeof(object));
+            return Array.Empty<AuditedEntityKeyProperty>();
         }
 
-        return (key.Properties[0].Name, key.Properties[0].ClrType);
+        var storeObject = StoreObjectIdentifier.Table(readOnlyEntityType.GetTableName()!);
+        return key.Properties.Select(property => new AuditedEntityKeyProperty(
+                                         property.GetColumnName(storeObject)!, 
+                                         property.ClrType.GetAuditColumnType(), 
+                                         property.GetMaxLength(storeObject)!)).ToArray();
     }
 }

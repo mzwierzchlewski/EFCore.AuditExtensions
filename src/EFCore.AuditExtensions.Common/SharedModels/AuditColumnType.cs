@@ -1,4 +1,4 @@
-﻿namespace EFCore.AuditExtensions.Common.Annotations.Table;
+﻿namespace EFCore.AuditExtensions.Common.SharedModels;
 
 public enum AuditColumnType
 {

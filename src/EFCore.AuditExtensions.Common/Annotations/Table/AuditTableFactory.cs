@@ -1,5 +1,6 @@
 ﻿using EFCore.AuditExtensions.Common.Configuration;
 using EFCore.AuditExtensions.Common.Extensions;
+using EFCore.AuditExtensions.Common.SharedModels;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
@@ -11,7 +12,7 @@ internal static class AuditTableFactory
     {
         var columns = GetColumnsForEntityType(entityType, options);
         var name = GetNameForEntityType(entityType, options);
-        var index = GetIndexFromColumns(columns, options);
+        var index = GetIndexFromOptions(options);
 
         return new AuditTable(name, columns, index);
     }
@@ -25,37 +26,34 @@ internal static class AuditTableFactory
         new AuditTableColumn(AuditColumnType.DateTime, Constants.AuditTableColumnNames.Timestamp, false, false),
     };
 
-    private static AuditTableColumn GetKeyColumn<T>(IReadOnlyEntityType entityType, AuditOptions<T> options) where T : class
+    private static AuditTableColumn[] GetKeyColumns<T>(IReadOnlyEntityType entityType, AuditOptions<T> options) where T : class
     {
-        string keyName;
-        Type keyType;
+        IEnumerable<AuditedEntityKeyProperty> keyProperties;
 
         if (options.AuditedEntityKeyOptions.KeySelector == null)
         {
-            (keyName, keyType) = entityType.GetSimpleKeyNameAndType();
-            if (string.IsNullOrEmpty(keyName))
+            keyProperties = entityType.GetKeyProperties();
+            if (!keyProperties.Any())
             {
                 throw new InvalidOperationException("Audited entity must either have a simple Key or the AuditedEntityKeySelector must be provided");
             }
         }
         else
         {
-            (keyName, keyType) = options.AuditedEntityKeyOptions.KeySelector.GetAccessedPropertyNameAndType();
-            if (string.IsNullOrEmpty(keyName))
+            keyProperties = options.AuditedEntityKeyOptions.KeySelector.GetKeyProperties(entityType);
+            if (!keyProperties.Any())
             {
-                throw new InvalidOperationException("AuditedEntityKeySelector must point to a single property");
+                throw new InvalidOperationException("AuditedEntityKeySelector must point to valid properties");
             }
         }
 
-        return new AuditTableColumn(keyType.GetAuditColumnType(), keyName, false, true);
+        return keyProperties.Select(property => new AuditTableColumn(property.ColumnType, property.ColumnName, false, true, property.MaxLength)).ToArray();
     }
 
     private static IReadOnlyCollection<AuditTableColumn> GetColumnsForEntityType<T>(IReadOnlyEntityType entityType, AuditOptions<T> options) where T : class
     {
-        var columns = new List<AuditTableColumn>
-        {
-            GetKeyColumn(entityType, options),
-        };
+        var columns = new List<AuditTableColumn>();
+        columns.AddRange(GetKeyColumns(entityType, options));
         columns.AddRange(GetDefaultColumns(options.DataColumnsMaxLength));
 
         return columns.ToArray();
@@ -64,14 +62,8 @@ internal static class AuditTableFactory
     private static string GetNameForEntityType<T>(IReadOnlyEntityType entityType, AuditOptions<T> options) where T : class
         => string.IsNullOrEmpty(options.AuditTableName) ? $"{entityType.GetTableName()}{Constants.AuditTableNameSuffix}" : options.AuditTableName;
 
-    private static AuditTableIndex? GetIndexFromColumns<T>(IReadOnlyCollection<AuditTableColumn> columns, AuditOptions<T> options) where T : class
+    private static AuditTableIndex? GetIndexFromOptions<T>(AuditOptions<T> options) where T : class
     {
-        var keyColumn = columns.SingleOrDefault(c => c.AuditedEntityKey);
-        if (keyColumn == null)
-        {
-            return null;
-        }
-
         if (options.AuditedEntityKeyOptions.KeySelector == null)
         {
             if (options.AuditedEntityKeyOptions.Index == false)
@@ -79,7 +71,7 @@ internal static class AuditTableFactory
                 return null;
             }
 
-            return new AuditTableIndex(options.AuditedEntityKeyOptions.IndexName, keyColumn.Name, keyColumn.Type);
+            return new AuditTableIndex(options.AuditedEntityKeyOptions.IndexName);
         }
 
         if (options.AuditedEntityKeyOptions.Index is null or false)
@@ -87,6 +79,6 @@ internal static class AuditTableFactory
             return null;
         }
 
-        return new AuditTableIndex(options.AuditedEntityKeyOptions.IndexName, keyColumn.Name, keyColumn.Type);
+        return new AuditTableIndex(options.AuditedEntityKeyOptions.IndexName);
     }
 }
