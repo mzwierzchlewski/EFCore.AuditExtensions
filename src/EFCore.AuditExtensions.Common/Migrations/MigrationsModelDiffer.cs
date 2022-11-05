@@ -50,9 +50,11 @@ public class MigrationsModelDiffer : Microsoft.EntityFrameworkCore.Migrations.In
     {
         var auditMigrationOperationsArray = auditMigrationOperations as MigrationOperation[] ?? auditMigrationOperations.ToArray();
         var dropAuditTriggerOperations = auditMigrationOperationsArray.OfType<DropAuditTriggerOperation>().ToArray();
-        var leftoverAuditOperations = auditMigrationOperationsArray.Except(dropAuditTriggerOperations);
+        var dropIndexOperations = auditMigrationOperationsArray.OfType<DropIndexOperation>().ToArray();
+        var firstOperations = dropAuditTriggerOperations.Concat<MigrationOperation>(dropIndexOperations).ToArray();
+        var leftoverAuditOperations = auditMigrationOperationsArray.Except(firstOperations);
 
-        return dropAuditTriggerOperations.Concat(otherOperations).Concat(leftoverAuditOperations).ToList();
+        return firstOperations.Concat(otherOperations).Concat(leftoverAuditOperations).ToList();
     }
 
     #region Diff - AuditedEntityType
