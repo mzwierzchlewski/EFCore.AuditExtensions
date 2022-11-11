@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.DependencyInjection;
+using ModelCustomizer = EFCore.AuditExtensions.Common.EfCore.ModelCustomizer;
 
 namespace EFCore.AuditExtensions.Common.Extensions;
 
@@ -57,5 +58,6 @@ internal static class DbContextOptionsBuilderExtensions
         services.AddLogging();
         services.AddScoped<ICreateAuditTriggerSqlGenerator, TCreateAuditTriggerSqlGenerator>();
         services.AddScoped<IDropAuditTriggerSqlGenerator, TDropAuditTriggerSqlGenerator>();
+        services.AddSingleton<IModelCustomizer, ModelCustomizer>();
     }
 }

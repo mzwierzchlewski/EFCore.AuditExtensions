@@ -3,6 +3,8 @@
 internal static class Constants
 {
     public static string AnnotationPrefix => "AuditExtensions";
+    
+    public static string AddAuditAnnotationName => "AddAudit";
 
     public static string AuditTableNameSuffix => "_Audit";
 

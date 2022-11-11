@@ -12,13 +12,26 @@ public static class EntityTypeBuilderExtensions
     public static EntityTypeBuilder<T> IsAudited<T>(this EntityTypeBuilder<T> entityTypeBuilder, Action<AuditOptions<T>>? configureOptions = null)
         where T : class
     {
-        var entityType = entityTypeBuilder.GetEntityType();
-        var auditOptions = AuditOptionsFactory.GetConfiguredAuditOptions(configureOptions);
-        var auditTable = AuditTableFactory.CreateFromEntityType(entityType, auditOptions);
-        var auditTrigger = AuditTriggerFactory.CreateFromAuditTableAndEntityType(auditTable, entityType, auditOptions);
-        var auditName = $"{Constants.AnnotationPrefix}:{nameof(T)}";
-        var audit = new Audit(auditName, auditTable, auditTrigger);
-        return entityTypeBuilder.AddAuditAnnotation(audit);
+        entityTypeBuilder.AddDelayedAuditAnnotation(
+            entityType =>
+            {
+                var auditOptions = AuditOptionsFactory.GetConfiguredAuditOptions(configureOptions);
+                var auditTable = AuditTableFactory.CreateFromEntityType(entityType, auditOptions);
+                var auditTrigger = AuditTriggerFactory.CreateFromAuditTableAndEntityType(auditTable, entityType, auditOptions);
+                var auditName = $"{Constants.AnnotationPrefix}:{typeof(T).Name}";
+                var audit = new Audit(auditName, auditTable, auditTrigger);
+                entityTypeBuilder.AddAuditAnnotation(audit);
+            });
+
+        return entityTypeBuilder;
+    }
+
+    private static EntityTypeBuilder<T> AddDelayedAuditAnnotation<T>(this EntityTypeBuilder<T> entityTypeBuilder, Action<IMutableEntityType> addAuditAction) 
+        where T : class
+    {
+        entityTypeBuilder.GetEntityType().AddAnnotation(Constants.AddAuditAnnotationName, addAuditAction);
+
+        return entityTypeBuilder;
     }
 
     private static IMutableEntityType GetEntityType<T>(this EntityTypeBuilder<T> entityTypeBuilder) where T : class
