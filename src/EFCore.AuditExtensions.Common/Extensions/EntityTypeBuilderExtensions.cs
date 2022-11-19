@@ -9,6 +9,13 @@ namespace EFCore.AuditExtensions.Common.Extensions;
 
 public static class EntityTypeBuilderExtensions
 {
+    /// <summary>
+    /// Instructs Entity Framework to create the infrastructure necessary for logging entity changes.
+    /// </summary>
+    /// <param name="entityTypeBuilder">EntityTypeBuilder of the entity that should be audited.</param>
+    /// <param name="configureOptions">Action over AuditOptions allowing for customisation of the auditing infrastructure.</param>
+    /// <typeparam name="T">Type of the entity that should be audited.</typeparam>
+    /// <returns>EntityTypeBuilder for further chaining.</returns>
     public static EntityTypeBuilder<T> IsAudited<T>(this EntityTypeBuilder<T> entityTypeBuilder, Action<AuditOptions<T>>? configureOptions = null)
         where T : class
     {
