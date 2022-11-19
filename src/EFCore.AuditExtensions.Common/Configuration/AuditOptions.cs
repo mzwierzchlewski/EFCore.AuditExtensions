@@ -8,7 +8,8 @@ public class AuditOptions<TEntity> where TEntity : class
     
     public int? DataColumnsMaxLength { get; set; }
 
-    public AuditTriggerOptions<TEntity> AuditTriggerOptions { get; } = new();
+    public AuditTriggerOptions AuditTriggerOptions { get; } = new();
+    
     public AuditKeyOptions<TEntity> AuditedEntityKeyOptions { get; } = new();
 }
 
@@ -21,7 +22,7 @@ public class AuditKeyOptions<TEntity> where TEntity : class
     public string? IndexName { get; set; }
 }
 
-public class AuditTriggerOptions<TEntity> where TEntity : class
+public class AuditTriggerOptions
 {
     public string? NameFormat { get; set; }
     

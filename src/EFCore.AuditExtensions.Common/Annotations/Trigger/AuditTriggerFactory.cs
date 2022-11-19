@@ -26,11 +26,11 @@ internal static class AuditTriggerFactory
     private static AuditedEntityKeyProperty[] GetKeyProperties(AuditTable auditTable) 
         => auditTable.Columns.Where(c => c.AuditedEntityKey).Select(c => new AuditedEntityKeyProperty(c.Name, c.Type, c.MaxLength)).ToArray();
 
-    private static bool GetNoKeyChanges<T>(AuditTriggerOptions<T> options) where T : class => options.NoKeyChanges ?? false;
+    private static bool GetNoKeyChanges(AuditTriggerOptions options) => options.NoKeyChanges ?? false;
 
-    private static int GetUpdateOptimisationThreshold<T>(AuditTriggerOptions<T> options) where T : class => options.UpdateOptimisationThreshold ?? 100;
+    private static int GetUpdateOptimisationThreshold(AuditTriggerOptions options) => options.UpdateOptimisationThreshold ?? 100;
 
-    private static string GetTriggerName<T>(AuditTriggerOptions<T> options, string tableName, string auditTableName) where T : class
+    private static string GetTriggerName(AuditTriggerOptions options, string tableName, string auditTableName)
     {
         var format = options.NameFormat ?? DefaultTriggerNameFormat;
         var parameters = GetNameParameters(tableName, auditTableName);
