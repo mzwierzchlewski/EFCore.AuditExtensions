@@ -10,6 +10,8 @@ internal static class Constants
 
     public static string AuditTriggerPrefix => "Audit_";
 
+    public static string Ef7AuditTriggerPlaceholderName => "AuditTrigger";
+
     public static class AuditTableColumnNames
     {
         public static string OldData = nameof(OldData);

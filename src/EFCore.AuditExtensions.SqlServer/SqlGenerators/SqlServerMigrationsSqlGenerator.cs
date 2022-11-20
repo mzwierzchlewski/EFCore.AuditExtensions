@@ -3,6 +3,7 @@ using EFCore.AuditExtensions.Common.Migrations.Sql.Operations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
+using Microsoft.EntityFrameworkCore.Update;
 
 namespace EFCore.AuditExtensions.SqlServer.SqlGenerators;
 
@@ -12,7 +13,7 @@ internal class SqlServerMigrationsSqlGenerator : Microsoft.EntityFrameworkCore.M
 
     private readonly IDropAuditTriggerSqlGenerator _dropAuditTriggerSqlGenerator;
 
-    public SqlServerMigrationsSqlGenerator(MigrationsSqlGeneratorDependencies dependencies, IRelationalAnnotationProvider migrationsAnnotations, ICreateAuditTriggerSqlGenerator createAuditTriggerSqlGenerator, IDropAuditTriggerSqlGenerator dropAuditTriggerSqlGenerator) : base(dependencies, migrationsAnnotations)
+    public SqlServerMigrationsSqlGenerator(MigrationsSqlGeneratorDependencies dependencies, ICommandBatchPreparer commandBatchPreparer, ICreateAuditTriggerSqlGenerator createAuditTriggerSqlGenerator, IDropAuditTriggerSqlGenerator dropAuditTriggerSqlGenerator) : base(dependencies, commandBatchPreparer)
     {
         _createAuditTriggerSqlGenerator = createAuditTriggerSqlGenerator;
         _dropAuditTriggerSqlGenerator = dropAuditTriggerSqlGenerator;

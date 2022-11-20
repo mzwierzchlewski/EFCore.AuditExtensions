@@ -8,6 +8,8 @@ namespace EFCore.AuditExtensions.Common.EfCore.Models;
 
 public class CustomAuditTableIndex : TableIndex
 {
+    public override IReadOnlyList<bool>? IsDescending => MappedIndexes.FirstOrDefault()?.IsDescending;
+
     public override string? Filter => MappedIndexes.FirstOrDefault()?.GetFilter(StoreObjectIdentifier.Table(Table.Name, Table.Schema));
 
     public CustomAuditTableIndex(string name, Table table, IReadOnlyList<Column> columns) : base(name, table, columns, false)
