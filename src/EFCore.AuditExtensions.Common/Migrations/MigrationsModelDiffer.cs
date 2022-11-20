@@ -25,11 +25,10 @@ public class MigrationsModelDiffer : Microsoft.EntityFrameworkCore.Migrations.In
     public MigrationsModelDiffer(
         IRelationalTypeMappingSource typeMappingSource,
         IMigrationsAnnotationProvider migrationsAnnotations,
-        IChangeDetector changeDetector,
-        IUpdateAdapterFactory updateAdapterFactory,
+        IRowIdentityMapFactory rowIdentityMapFactory,
         CommandBatchPreparerDependencies commandBatchPreparerDependencies,
         ILogger<MigrationsModelDiffer> logger)
-        : base(typeMappingSource, migrationsAnnotations, changeDetector, updateAdapterFactory, commandBatchPreparerDependencies)
+        : base(typeMappingSource, migrationsAnnotations, rowIdentityMapFactory, commandBatchPreparerDependencies)
     {
         _logger = logger;
     }

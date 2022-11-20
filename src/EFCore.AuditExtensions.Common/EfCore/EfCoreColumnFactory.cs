@@ -20,7 +20,7 @@ internal static class EfCoreColumnFactory
             IsNullable = auditTableColumn.Nullable,
         };
         var columnMapping = new ColumnMapping(new Property(auditTableColumn.Name, columnClrType, null, null, entityType, ConfigurationSource.Explicit, null), tableColumn, tableMapping);
-        tableColumn.PropertyMappings.Add(columnMapping);
+        tableColumn.AddPropertyMapping(columnMapping);
 
         return tableColumn;
     }

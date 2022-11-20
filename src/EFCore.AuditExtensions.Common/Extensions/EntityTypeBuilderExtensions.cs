@@ -2,6 +2,7 @@
 using EFCore.AuditExtensions.Common.Annotations.Table;
 using EFCore.AuditExtensions.Common.Annotations.Trigger;
 using EFCore.AuditExtensions.Common.Configuration;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -19,16 +20,21 @@ public static class EntityTypeBuilderExtensions
     public static EntityTypeBuilder<T> IsAudited<T>(this EntityTypeBuilder<T> entityTypeBuilder, Action<AuditOptions<T>>? configureOptions = null)
         where T : class
     {
-        entityTypeBuilder.AddDelayedAuditAnnotation(
-            entityType =>
-            {
-                var auditOptions = AuditOptionsFactory.GetConfiguredAuditOptions(configureOptions);
-                var auditTable = AuditTableFactory.CreateFromEntityType(entityType, auditOptions);
-                var auditTrigger = AuditTriggerFactory.CreateFromAuditTableAndEntityType(auditTable, entityType, auditOptions);
-                var auditName = $"{Constants.AnnotationPrefix}:{typeof(T).Name}";
-                var audit = new Audit(auditName, auditTable, auditTrigger);
-                entityTypeBuilder.AddAuditAnnotation(audit);
-            });
+        if (EF.IsDesignTime)
+        {
+            entityTypeBuilder.AddDelayedAuditAnnotation(
+                entityType =>
+                {
+                    var auditOptions = AuditOptionsFactory.GetConfiguredAuditOptions(configureOptions);
+                    var auditTable = AuditTableFactory.CreateFromEntityType(entityType, auditOptions);
+                    var auditTrigger = AuditTriggerFactory.CreateFromAuditTableAndEntityType(auditTable, entityType, auditOptions);
+                    var auditName = $"{Constants.AnnotationPrefix}:{typeof(T).Name}";
+                    var audit = new Audit(auditName, auditTable, auditTrigger);
+                    entityTypeBuilder.AddAuditAnnotation(audit);
+                });
+        }
+        
+        EntityTypeBuilder.HasTrigger(entityTypeBuilder.GetEntityType(), Constants.Ef7AuditTriggerPlaceholderName);
 
         return entityTypeBuilder;
     }
