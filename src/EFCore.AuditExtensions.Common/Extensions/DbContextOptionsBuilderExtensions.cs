@@ -49,7 +49,21 @@ internal static class DbContextOptionsBuilderExtensions
 
     private static void AddUserContextInterceptor<TUserProvider, TUserContextInterceptor>(this IServiceCollection services) where TUserProvider : class, IUserProvider where TUserContextInterceptor : BaseUserContextInterceptor
     {
-        services.AddScoped<IUserProvider, TUserProvider>();
+        services.AddScoped<IUserProvider>(
+            provider =>
+            {
+                var applicationServiceProvider = provider
+                                                 .GetService<IDbContextOptions>()?
+                                                 .FindExtension<CoreOptionsExtension>()?
+                                                 .ApplicationServiceProvider;
+                if (applicationServiceProvider == null)
+                {
+                    return new EmptyUserProvider();
+                }
+
+                var userProvider = ActivatorUtilities.GetServiceOrCreateInstance<TUserProvider>(applicationServiceProvider);
+                return userProvider;
+            });
         services.AddScoped<IInterceptor, TUserContextInterceptor>();
     }
 
