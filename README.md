@@ -1,7 +1,7 @@
 # EFCore Audit Extensions
 
 The aim of this extension is an easy setup of auditing infrastructure for your entities. All changes (insert, update,
-delete) to the entities are logged into a separate table (called _Audit Table_) with the following data:
+delete) to the entities are logged into a separate tables (called _Audit Table_), one audit table per EF entity, with the following data:
 
 * _Id_ - identifier of the modified entity <sup>[1](#id-column)</sup>
 * _OldData_ - state of the entity before the change (serialized)
